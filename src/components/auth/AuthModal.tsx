@@ -76,7 +76,7 @@ export function AuthModal({ open, initialMode, prefillEmail = '', busy, error, o
         <form id="authForm" onSubmit={submit}>
           {signup && <label>Name<input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" placeholder="Your name" required /></label>}
           <label>{signup ? 'Email' : 'Email or admin username'}<input value={email} onChange={(event) => setEmail(event.target.value)} type={signup ? 'email' : 'text'} autoComplete={signup ? 'email' : 'username'} placeholder={signup ? 'you@example.com' : 'you@example.com or admin'} required /></label>
-          <label>Password<input value={password} onChange={(event) => setPassword(event.target.value)} type="password" autoComplete={signup ? 'new-password' : 'current-password'} minLength={8} placeholder="At least 8 characters" required /></label>
+          <label>Password<input value={password} onChange={(event) => setPassword(event.target.value)} type="password" autoComplete={signup ? 'new-password' : 'current-password'} minLength={signup ? 8 : undefined} placeholder={signup ? 'At least 8 characters' : 'Your password'} required /></label>
           {signup && <label>Confirm password<input value={confirm} onChange={(event) => setConfirm(event.target.value)} type="password" autoComplete="new-password" placeholder="Repeat password" required /></label>}
           {(error || mismatch) && <div className="auth-message">{error || 'Passwords do not match.'}</div>}
           <button className="auth-submit glow-control" type="submit" disabled={busy}>{busy ? 'Connecting…' : signup ? 'Create account' : 'Log in'} <span>↗</span></button>

@@ -2467,6 +2467,37 @@ body .secure-home.nexus-home { background: transparent !important; }
 .auth-submit { height: 50px; border-radius: 16px; background: var(--acc); color: #19070c; }
 .auth-submit:hover { background: #ff7595; }
 
+/* Authentication controls: keep the selected state rounded and remove the
+   browser's square focus ring that was sitting over the glow border. */
+.auth-modal .auth-switch { overflow: hidden; }
+.auth-modal .auth-switch button,
+.auth-modal .auth-switch button:hover,
+.auth-modal .auth-switch button:focus,
+.auth-modal .auth-switch button:focus-visible {
+  outline: none !important;
+  outline-offset: 0;
+  border-radius: 14px !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.auth-modal .auth-switch button::before,
+.auth-modal .auth-switch button::after { border-radius: inherit; }
+.auth-modal .auth-close,
+.auth-modal .auth-close:hover,
+.auth-modal .auth-close:focus,
+.auth-modal .auth-close:focus-visible {
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 999px !important;
+  outline: none !important;
+  outline-offset: 0;
+  line-height: 1;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 /* Interactive liquid background. It sits behind every product surface and reacts
    to pointer movement and clicks without intercepting UI input. */
 #root { position: relative; z-index: 0; min-height: 100%; isolation: isolate; }
