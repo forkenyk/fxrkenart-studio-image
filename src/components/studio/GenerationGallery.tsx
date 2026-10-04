@@ -10,7 +10,7 @@ export function GenerationGallery({ results, onOpen, onClear }: GenerationGaller
   return (
     <>
       <section className={`empty-canvas ${results.length ? 'has-results' : ''}`}>
-        <div className="cinema-hero"><div className="hero-collage"><span className="hero-card hero-card-a" /><span className="hero-card hero-card-b" /><span className="hero-card hero-card-c" /><span className="hero-card hero-card-d" /></div><h1>START CREATING WITH <span>FXRKENART IMAGE STUDIO</span></h1><p>Describe a scene, character, mood, or style — and watch it come to life</p></div>
+        <div className="cinema-hero"><div className="hero-kicker">IMAGE LIBRARY / EMPTY CANVAS</div><div className="hero-collage"><span className="hero-card hero-card-a" /><span className="hero-card hero-card-b" /><span className="hero-card hero-card-c" /><span className="hero-card hero-card-d" /></div><h1>MAKE THE <em>UNSEEN</em><br />VISIBLE.</h1><p>Start with a thought, a reference or a feeling. The first frame is yours to define.</p><div className="hero-rule"><span />TEXT / REFERENCE / FORM</div></div>
       </section>
       <section className={`result-board ${results.length ? 'has-results' : ''}`} aria-live="polite">
         <div className="result-board-head"><div><strong>Your creations</strong><span>{results.length} {results.length === 1 ? 'result' : 'results'}</span></div><button className="glow-control" onClick={onClear}>Clear</button></div>

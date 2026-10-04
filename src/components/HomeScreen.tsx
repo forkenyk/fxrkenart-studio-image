@@ -7,7 +7,7 @@ export function HomeScreen({ onLogin, onSignup }: HomeScreenProps) {
   return (
     <div className="home-screen">
       <header className="home-header">
-        <a className="home-brand" href="#home" aria-label="FXRKENART home">
+        <a className="home-brand" href="/" aria-label="FXRKENART home">
           <span className="brand-mark">F</span>
           <span>FXRKENART</span>
         </a>
@@ -25,9 +25,9 @@ export function HomeScreen({ onLogin, onSignup }: HomeScreenProps) {
       <main className="home-main" id="home">
         <div className="home-system-status">
           <span className="status-dot" />
-          <span>Private creative workspace</span>
-          <b>FXRKENART AI</b>
-          <time>Provider-backed generation</time>
+          <span>Private image workspace</span>
+          <b>LIVE</b>
+          <time>Built for visual work</time>
         </div>
 
         <section className="home-hero-frame">
@@ -36,24 +36,33 @@ export function HomeScreen({ onLogin, onSignup }: HomeScreenProps) {
           <div className="home-orbit orbit-one" />
           <div className="home-orbit orbit-two" />
           <div className="home-hero-copy">
-            <span className="home-eyebrow">IMAGE INTELLIGENCE / 01</span>
-            <h1>Create what<br /><span>you imagine.</span></h1>
-            <p>Turn an idea, mood or visual reference into a high-quality image with a private workspace built for creators.</p>
+            <span className="home-eyebrow">IMAGE STUDIO / 01</span>
+            <h1>Make the<br /><span>unseen visible.</span></h1>
+            <p>A focused space for turning language, references and instinct into images worth keeping.</p>
             <div className="home-hero-actions">
-              <button className="home-primary glow-control" onClick={onSignup}>Start creating <span>↗</span></button>
-              <button className="home-secondary glow-control" onClick={onLogin}>Explore workspace</button>
+              <button className="home-primary glow-control" onClick={onSignup}>Open the studio <span>↗</span></button>
+              <button className="home-secondary glow-control" onClick={onLogin}>Sign in</button>
             </div>
           </div>
+          <div className="home-hero-visual" aria-hidden="true">
+            <span className="visual-caption visual-caption-top">FXR / 2026</span>
+            <span className="visual-caption visual-caption-bottom">GENERATIVE IMAGE SYSTEM</span>
+            <div className="visual-orbit visual-orbit-one" />
+            <div className="visual-orbit visual-orbit-two" />
+            <div className="visual-core"><span>F</span></div>
+            <div className="visual-axis visual-axis-x" />
+            <div className="visual-axis visual-axis-y" />
+            <span className="visual-index">01—02</span>
+          </div>
           <div className="home-metric metric-one"><strong>02</strong><span>creative<br />models</span></div>
-          <div className="home-metric metric-two"><strong>∞</strong><span>your ideas<br />stored safely</span></div>
+          <div className="home-metric metric-two"><strong>∞</strong><span>your work<br />kept private</span></div>
         </section>
 
         <div className="home-bottom-row" id="features">
-          <span>Text to image</span>
-          <span>Visual references</span>
-          <span>Private history</span>
-          <span>Server-side credits</span>
-          <span>Cloud-ready</span>
+          <span>Text → image</span>
+          <span>Reference aware</span>
+          <span>Private library</span>
+          <span>Soul / Nano Banana PRO</span>
         </div>
       </main>
     </div>
