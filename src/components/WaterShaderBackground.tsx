@@ -100,6 +100,123 @@ const fragmentSource = `
 
 type Ripple = { x: number; y: number; startedAt: number; strength: number };
 
+function startCanvasFallback(canvas: HTMLCanvasElement) {
+  const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+  if (!context) return undefined;
+  const pointer = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.48, targetX: window.innerWidth * 0.5, targetY: window.innerHeight * 0.48, active: 0 };
+  const clickRipples: Ripple[] = [];
+  let frame = 0;
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  let scale = 1;
+
+  function resize() {
+    scale = Math.min(window.devicePixelRatio || 1, 1.6);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.max(1, Math.floor(width * scale));
+    canvas.height = Math.max(1, Math.floor(height * scale));
+    context.setTransform(scale, 0, 0, scale, 0, 0);
+  }
+
+  function onPointerMove(event: PointerEvent) {
+    pointer.targetX = event.clientX;
+    pointer.targetY = event.clientY;
+    pointer.active = 1;
+  }
+
+  function onPointerLeave() { pointer.active = 0; }
+
+  function onPointerDown(event: PointerEvent) {
+    clickRipples.unshift({ x: event.clientX, y: event.clientY, startedAt: performance.now(), strength: event.pointerType === 'touch' ? 1.15 : 0.9 });
+    clickRipples.splice(4);
+  }
+
+  function drawWave(now: number, index: number, alpha: number) {
+    const time = now * 0.00032;
+    const y = height * (0.14 + index * 0.072);
+    context.beginPath();
+    for (let x = -40; x <= width + 40; x += 20) {
+      const wave = Math.sin(x * 0.009 + time * (2.3 + index * 0.06) + index) * (8 + index * 1.8)
+        + Math.sin(x * 0.0034 - time * 1.8 + index * 1.7) * 12;
+      const local = Math.sin((x / width) * Math.PI + time + index) * 8;
+      const pointY = y + wave + local;
+      if (x === -40) context.moveTo(x, pointY);
+      else context.lineTo(x, pointY);
+    }
+    context.strokeStyle = `rgba(255, 65, 104, ${alpha})`;
+    context.lineWidth = 1 + index * 0.035;
+    context.stroke();
+  }
+
+  function draw(now: number) {
+    const elapsed = now * 0.001;
+    pointer.x += (pointer.targetX - pointer.x) * 0.08;
+    pointer.y += (pointer.targetY - pointer.y) * 0.08;
+    context.clearRect(0, 0, width, height);
+    context.fillStyle = '#050304';
+    context.fillRect(0, 0, width, height);
+
+    const atmosphere = context.createRadialGradient(width * 0.5, height * 0.28, 0, width * 0.5, height * 0.28, Math.max(width, height) * 0.72);
+    atmosphere.addColorStop(0, 'rgba(150, 12, 46, .12)');
+    atmosphere.addColorStop(.42, 'rgba(74, 5, 25, .055)');
+    atmosphere.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    context.fillStyle = atmosphere;
+    context.fillRect(0, 0, width, height);
+
+    context.save();
+    context.globalCompositeOperation = 'screen';
+    context.filter = 'blur(1px)';
+    for (let index = 0; index < 13; index += 1) drawWave(now, index, 0.011 + index * 0.0018);
+    context.restore();
+
+    const pointerGlow = context.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, Math.max(width, height) * 0.23);
+    pointerGlow.addColorStop(0, `rgba(255, 54, 98, ${0.095 * pointer.active})`);
+    pointerGlow.addColorStop(.22, `rgba(215, 22, 66, ${0.04 * pointer.active})`);
+    pointerGlow.addColorStop(1, 'rgba(0,0,0,0)');
+    context.fillStyle = pointerGlow;
+    context.fillRect(0, 0, width, height);
+
+    context.save();
+    context.globalCompositeOperation = 'screen';
+    for (const ripple of clickRipples) {
+      const age = (now - ripple.startedAt) / 1000;
+      const radius = age * Math.min(width, height) * 0.25;
+      const opacity = Math.max(0, 1 - age / 2.8) * ripple.strength;
+      if (opacity <= 0) continue;
+      context.beginPath();
+      context.arc(ripple.x, ripple.y, radius, 0, Math.PI * 2);
+      context.strokeStyle = `rgba(255, 95, 128, ${opacity * 0.23})`;
+      context.lineWidth = 1.4;
+      context.stroke();
+      context.beginPath();
+      context.arc(ripple.x, ripple.y, radius * .72, 0, Math.PI * 2);
+      context.strokeStyle = `rgba(255, 185, 198, ${opacity * 0.075})`;
+      context.lineWidth = 1;
+      context.stroke();
+    }
+    context.restore();
+
+    while (clickRipples.length > 0 && (now - clickRipples[clickRipples.length - 1].startedAt) / 1000 > 3.2) clickRipples.pop();
+    frame = window.requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  window.addEventListener('pointermove', onPointerMove, { passive: true });
+  window.addEventListener('pointerleave', onPointerLeave, { passive: true });
+  window.addEventListener('pointerdown', onPointerDown, { passive: true });
+  frame = window.requestAnimationFrame(draw);
+
+  return () => {
+    window.cancelAnimationFrame(frame);
+    window.removeEventListener('resize', resize);
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerleave', onPointerLeave);
+    window.removeEventListener('pointerdown', onPointerDown);
+  };
+}
+
 function compileShader(gl: WebGLRenderingContext, type: number, source: string) {
   const shader = gl.createShader(type);
   if (!shader) return null;
@@ -119,7 +236,7 @@ export function WaterShaderBackground() {
     const canvas = canvasRef.current;
     if (!canvas) return undefined;
     const gl = canvas.getContext('webgl', { alpha: true, antialias: false, powerPreference: 'high-performance' });
-    if (!gl) return undefined;
+    if (!gl) return startCanvasFallback(canvas);
     const shaderCanvas = canvas;
     const context = gl;
 
