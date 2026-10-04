@@ -1,8 +1,8 @@
 import crypto from 'node:crypto';
+import { generateImage } from '../../worker/providers';
 import { config } from '../config';
 import { many, one, run, transaction } from '../db';
-import { generate, uploadReference } from '../providers/higgsfield';
-import { readMedia, saveDownloadedImage, newAssetId } from '../storage/local';
+import { readMedia, saveImageBytes, newAssetId } from '../storage/local';
 
 interface GenerationInput {
   prompt: string;
@@ -17,19 +17,19 @@ interface GenerationInput {
 
 interface ReferenceRow { id: string; r2_key: string; mime_type: string; }
 
-async function providerReferenceUrls(userId: string, referenceIds: string[]) {
+async function providerReferences(userId: string, referenceIds: string[]) {
   if (!referenceIds.length) return [];
   const placeholders = referenceIds.map(() => '?').join(',');
   const rows = many<ReferenceRow>(`SELECT id, r2_key, mime_type FROM assets WHERE user_id = ? AND kind = 'reference' AND id IN (${placeholders})`, userId, ...referenceIds);
   if (rows.length !== referenceIds.length) throw new Error('One or more references do not belong to this account.');
   const byId = new Map(rows.map((row) => [row.id, row]));
-  const urls: string[] = [];
+  const images: Array<{ bytes: ArrayBuffer; mimeType: string }> = [];
   for (const id of referenceIds) {
     const row = byId.get(id)!;
     const bytes = new Uint8Array(await readMedia(row.r2_key));
-    urls.push(await uploadReference(bytes, row.mime_type));
+    images.push({ bytes: bytes.slice().buffer as ArrayBuffer, mimeType: row.mime_type });
   }
-  return urls;
+  return images;
 }
 
 function markFailed(generationId: string, message: string) {
@@ -47,13 +47,13 @@ function markFailed(generationId: string, message: string) {
 export async function executeGeneration(generationId: string, userId: string, input: GenerationInput) {
   try {
     run('UPDATE generations SET status = ? WHERE id = ?', 'submitting', generationId);
-    const referenceUrls = await providerReferenceUrls(userId, input.referenceIds);
-    const provider = await generate({ ...input, referenceUrls }, (status) => run('UPDATE generations SET status = ? WHERE id = ?', status === 'processing' ? 'processing' : 'submitting', generationId));
-    run('UPDATE generations SET provider_request_id = ?, status = ? WHERE id = ?', provider.requestId, 'processing', generationId);
+    const references = await providerReferences(userId, input.referenceIds);
+    const provider = await generateImage({ OPENAI_API_KEY: config.openAiApiKey, OPENAI_IMAGE_MODEL: config.openAiImageModel, GEMINI_API_KEY: config.geminiApiKey, GEMINI_IMAGE_MODEL: config.geminiImageModel }, { ...input, references });
+    run('UPDATE generations SET provider_request_id = ?, status = ? WHERE id = ?', `${input.model}:${generationId}`, 'processing', generationId);
     const stored = [];
-    for (let index = 0; index < provider.urls.length; index += 1) {
+    for (let index = 0; index < provider.length; index += 1) {
       const assetId = newAssetId();
-      const media = await saveDownloadedImage(userId, generationId, index, provider.urls[index]);
+      const media = await saveImageBytes(userId, generationId, index, provider[index].bytes, provider[index].mimeType);
       stored.push({ assetId, media });
     }
     transaction(() => {

@@ -9,17 +9,13 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"]
   },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "fxrkenart-studio-image",
-      "database_id": "b173c0cd-5c54-47cd-a3e7-dbbad7bc9d44"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "MEDIA",
-      "bucket_name": "fxrkenart-studio-image-media"
-    }
-  ]
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "fxrkenart-studio-image",
+    "database_id": "b173c0cd-5c54-47cd-a3e7-dbbad7bc9d44"
+  }],
+  "r2_buckets": [{
+    "binding": "MEDIA",
+    "bucket_name": "fxrkenart-studio-image-media"
+  }]
 }

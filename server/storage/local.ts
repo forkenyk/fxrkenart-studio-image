@@ -43,6 +43,15 @@ export async function saveDownloadedImage(userId: string, generationId: string, 
   return { key, size: bytes.byteLength, mimeType };
 }
 
+export async function saveImageBytes(userId: string, generationId: string, index: number, bytes: ArrayBuffer, mimeType = 'image/png') {
+  await ensureStorage();
+  const extension = mimeType.includes('jpeg') || mimeType.includes('jpg') ? 'jpg' : mimeType.includes('webp') ? 'webp' : 'png';
+  const key = relativeKey(userId, 'generations', generationId, `${index}.${extension}`);
+  await mkdir(path.dirname(absoluteKey(key)), { recursive: true });
+  await writeFile(absoluteKey(key), new Uint8Array(bytes));
+  return { key, size: bytes.byteLength, mimeType };
+}
+
 export async function readMedia(key: string) {
   return readFile(absoluteKey(key));
 }

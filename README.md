@@ -45,12 +45,13 @@ npx wrangler r2 bucket create fxrkenart-studio-image-media
 npx wrangler d1 execute fxrkenart-studio-image --remote --file=schema.sql
 ```
 
-Copy the D1 ID into the commented `DB` binding in `wrangler.jsonc`, uncomment both `DB` and `MEDIA`, then add the provider values as Worker secrets. Never put these values in the frontend:
+The production `DB` and `MEDIA` bindings are already configured in `wrangler.jsonc`. Add the direct provider keys and the temporary admin test login as Worker secrets. Never put these values in the frontend or GitHub:
 
 ```bash
-npx wrangler secret put HF_CREDENTIALS
-npx wrangler secret put HF_NANO_BANANA_PATH
-npx wrangler secret put HF_CHATGPT_25_PATH
+npx wrangler secret put OPENAI_API_KEY
+npx wrangler secret put GEMINI_API_KEY
+npx wrangler secret put ADMIN_USERNAME
+npx wrangler secret put ADMIN_PASSWORD
 npx wrangler secret put GOOGLE_CLIENT_ID
 npx wrangler secret put GOOGLE_CLIENT_SECRET
 ```
@@ -63,21 +64,20 @@ https://fxrkenart-studio-image.forkenyk-work.workers.dev/api/auth/google/callbac
 
 Set `APP_URL` to the child Worker URL and deploy with `npm run deploy`. The Worker handles `/api/*`; the asset binding serves the React SPA for everything else.
 
-Fill in the server-side provider values in `.env` before generating:
+Optional model overrides are server-side variables, not frontend values:
 
 ```env
-HF_CREDENTIALS=KEY_ID:KEY_SECRET
-HF_NANO_BANANA_PATH=/your/provider/nano/banana/pro/route
-HF_CHATGPT_25_PATH=/your/provider/chatgpt/2.5/route
+OPENAI_IMAGE_MODEL=gpt-image-2.5-sunburst
+GEMINI_IMAGE_MODEL=gemini-3-pro-image
 ```
 
-The temporary Studio model list is `Nano Banana PRO` and `ChatGPT 2.5`. Each model is routed through its own server-side provider path; the UI never exposes provider secrets.
+The temporary Studio model list is `Nano Banana PRO` and `ChatGPT 2.5`. Each label is routed to its own direct API; the UI never exposes provider secrets. The admin test login receives a large test credit balance and should be replaced before public launch.
 
 ## What is real in this build
 
 - Accounts, sessions, credit balance, ledger and jobs persist in local SQLite across API restarts.
 - References are stored in `data/media` under the owning account and are checked server-side.
-- Generate reserves credits in a transaction, calls the real provider adapter, polls the job and copies completed provider images into local media.
+- Generate reserves credits in a transaction, calls the direct OpenAI or Google image API, and copies returned image bytes into account-scoped media.
 - Provider failures refund credits and are visible as failed jobs.
 - The gallery reads stored assets from the account-scoped library route; it does not invent demo images.
 

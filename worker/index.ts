@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
+import { generateImage, type GeneratedImage } from './providers';
 
 type ModelName = 'Nano Banana PRO' | 'ChatGPT 2.5';
 type Quality = 'Low' | 'Medium' | 'High';
@@ -38,10 +39,13 @@ interface Env {
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   GOOGLE_REDIRECT_URI?: string;
-  HF_API_BASE_URL?: string;
-  HF_CREDENTIALS?: string;
-  HF_NANO_BANANA_PATH?: string;
-  HF_CHATGPT_25_PATH?: string;
+  ADMIN_USERNAME?: string;
+  ADMIN_PASSWORD?: string;
+  ADMIN_EMAIL?: string;
+  OPENAI_API_KEY?: string;
+  OPENAI_IMAGE_MODEL?: string;
+  GEMINI_API_KEY?: string;
+  GEMINI_IMAGE_MODEL?: string;
 }
 
 interface WorkerExecutionContext { waitUntil(promise: Promise<unknown>): void }
@@ -198,65 +202,6 @@ function safeExtension(name: string, mimeType: string) {
   return mimeType.split('/')[1]?.replace(/[^a-z0-9]/g, '') || 'bin';
 }
 
-function authHeaders(env: Env): Record<string, string> {
-  return env.HF_CREDENTIALS ? { Authorization: `Key ${env.HF_CREDENTIALS}` } : {};
-}
-
-function unwrapUrls(value: unknown): string[] {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.flatMap(unwrapUrls);
-  if (typeof value === 'string') return /^https?:\/\//i.test(value) ? [value] : [];
-  if (typeof value !== 'object') return [];
-  const record = value as Record<string, unknown>;
-  if (typeof record.url === 'string') return [record.url];
-  return Object.values(record).flatMap(unwrapUrls);
-}
-
-function imageUrls(payload: any) {
-  const candidates = [payload?.images, payload?.image, payload?.output?.images, payload?.output?.image, payload?.result?.images, payload?.result?.image, payload?.data?.images, payload?.data?.image];
-  return [...new Set(candidates.flatMap(unwrapUrls))];
-}
-
-async function uploadProviderReference(env: Env, bytes: ArrayBuffer, contentType: string) {
-  if (!env.HF_CREDENTIALS) throw new Error('HF_CREDENTIALS is not configured on the server.');
-  const signedResponse = await fetch(`${(env.HF_API_BASE_URL || 'https://api.higgsfield.ai').replace(/\/$/, '')}/files/generate-upload-url`, { method: 'POST', headers: { ...authHeaders(env), 'Content-Type': 'application/json' }, body: JSON.stringify({ content_type: contentType }) });
-  const signed = await signedResponse.json().catch(() => ({})) as any;
-  if (!signedResponse.ok || !signed.upload_url) throw new Error(signed?.detail || signed?.message || 'Could not create provider upload URL.');
-  const uploadResponse = await fetch(signed.upload_url, { method: 'PUT', headers: signed.upload_headers || { 'Content-Type': contentType }, body: bytes });
-  if (!uploadResponse.ok) throw new Error('Provider reference upload failed.');
-  return String(signed.public_url || signed.url);
-}
-
-async function providerGenerate(env: Env, input: { model: ModelName; prompt: string; quality: Quality; resolution: string; count: number; aspectRatio: string; autoPolish: boolean; referenceUrls: string[] }) {
-  const base = (env.HF_API_BASE_URL || 'https://api.higgsfield.ai').replace(/\/$/, '');
-  if (!env.HF_CREDENTIALS) throw new Error('HF_CREDENTIALS is not configured on the server.');
-  const endpointPath = input.model === 'Nano Banana PRO' ? env.HF_NANO_BANANA_PATH : env.HF_CHATGPT_25_PATH;
-  if (!endpointPath) throw new Error(`Set the provider path for ${input.model} before generating.`);
-  const body = { prompt: input.prompt, image_urls: input.referenceUrls.length ? input.referenceUrls : undefined, quality: input.quality.toLowerCase(), resolution: input.resolution.toLowerCase(), aspect_ratio: input.aspectRatio.toLowerCase(), enhance_prompt: input.autoPolish, batch_size: Math.min(4, Math.max(1, input.count)) };
-  const response = await fetch(`${base}${endpointPath}`, { method: 'POST', headers: { ...authHeaders(env), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const payload = await response.json().catch(() => ({})) as any;
-  if (!response.ok) throw new Error(payload?.detail || payload?.message || `Provider rejected generation (${response.status}).`);
-  const immediate = imageUrls(payload);
-  if (immediate.length) return { urls: immediate, requestId: payload.request_id || payload.id || null };
-  const requestId = payload.request_id || payload.id;
-  const statusUrl = payload.status_url || (requestId ? `${base}/requests/${requestId}/status` : '');
-  if (!statusUrl) throw new Error('Provider did not return a request status URL.');
-  for (let attempt = 0; attempt < 180; attempt += 1) {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    const statusResponse = await fetch(statusUrl, { headers: authHeaders(env) });
-    const statusPayload = await statusResponse.json().catch(() => ({})) as any;
-    if (!statusResponse.ok) throw new Error(statusPayload?.detail || statusPayload?.message || `Provider status error (${statusResponse.status}).`);
-    const status = String(statusPayload.status || statusPayload.state || '').toLowerCase();
-    if (['completed', 'succeeded', 'success'].includes(status)) {
-      const urls = imageUrls(statusPayload);
-      if (!urls.length) throw new Error('Provider completed without returning an image URL.');
-      return { urls, requestId };
-    }
-    if (['failed', 'canceled', 'cancelled', 'nsfw'].includes(status)) throw new Error(statusPayload.error || statusPayload.message || `Provider returned ${status}.`);
-  }
-  throw new Error('Provider generation timed out.');
-}
-
 async function failGeneration(env: Env, generationId: string, message: string) {
   const job = await first<{ user_id: string; cost_credits: number; status: string }>(env, 'SELECT user_id, cost_credits, status FROM generations WHERE id = ?', generationId);
   if (!job || ['completed', 'failed', 'canceled', 'nsfw'].includes(job.status)) return;
@@ -274,23 +219,22 @@ async function executeGeneration(env: Env, generationId: string, userId: string,
     await run(env, 'UPDATE generations SET status = ? WHERE id = ?', 'submitting', generationId);
     const references = input.referenceIds.length ? await many<{ id: string; r2_key: string; mime_type: string }>(env, `SELECT id, r2_key, mime_type FROM assets WHERE user_id = ? AND kind = 'reference' AND id IN (${input.referenceIds.map(() => '?').join(',')})`, userId, ...input.referenceIds) : [];
     if (references.length !== input.referenceIds.length) throw new Error('One or more references do not belong to this account.');
-    const referenceUrls: string[] = [];
+    const referenceImages: Array<{ bytes: ArrayBuffer; mimeType: string }> = [];
     for (const reference of input.referenceIds.map((id) => references.find((item) => item.id === id)!)) {
       const object = await mediaBucket(env).get(reference.r2_key);
       if (!object) throw new Error('A reference image is unavailable.');
-      referenceUrls.push(await uploadProviderReference(env, await new Response(object.body).arrayBuffer(), reference.mime_type));
+      referenceImages.push({ bytes: await new Response(object.body).arrayBuffer(), mimeType: reference.mime_type });
     }
-    const provider = await providerGenerate(env, { ...input, referenceUrls });
-    await run(env, 'UPDATE generations SET provider_request_id = ?, status = ? WHERE id = ?', provider.requestId, 'processing', generationId);
+    const providerImages = await generateImage(env, { ...input, references: referenceImages });
+    await run(env, 'UPDATE generations SET provider_request_id = ?, status = ? WHERE id = ?', `${input.model}:${generationId}`, 'processing', generationId);
     const stored: Array<{ assetId: string; key: string; mimeType: string; size: number }> = [];
-    for (let index = 0; index < provider.urls.length; index += 1) {
-      const response = await fetch(provider.urls[index]);
-      if (!response.ok) throw new Error(`Could not copy provider image (${response.status}).`);
-      const mimeType = response.headers.get('content-type')?.split(';')[0] || 'image/png';
+    for (let index = 0; index < providerImages.length; index += 1) {
+      const image: GeneratedImage = providerImages[index];
+      const mimeType = image.mimeType || 'image/png';
       const extension = mimeType.includes('jpeg') || mimeType.includes('jpg') ? 'jpg' : mimeType.includes('webp') ? 'webp' : 'png';
       const assetId = crypto.randomUUID();
       const key = `users/${userId}/generations/${generationId}/${index}.${extension}`;
-      const bytes = await response.arrayBuffer();
+      const bytes = image.bytes;
       await mediaBucket(env).put(key, bytes, { httpMetadata: { contentType: mimeType, cacheControl: 'private, max-age=31536000, immutable' } });
       stored.push({ assetId, key, mimeType, size: bytes.byteLength });
     }
@@ -307,7 +251,7 @@ async function executeGeneration(env: Env, generationId: string, userId: string,
 
 app.use('/api/*', cors({ origin: (origin) => origin || '*', credentials: true }));
 
-app.get('/api/health', (c) => c.json({ ok: true, provider: 'FXRKENART providers', models: ['Nano Banana PRO', 'ChatGPT 2.5'], database: Boolean(c.env.DB), storage: Boolean(c.env.MEDIA), google: Boolean(c.env.GOOGLE_CLIENT_ID && c.env.GOOGLE_CLIENT_SECRET) }));
+app.get('/api/health', (c) => c.json({ ok: true, providers: { openai: Boolean(c.env.OPENAI_API_KEY), gemini: Boolean(c.env.GEMINI_API_KEY) }, models: ['Nano Banana PRO', 'ChatGPT 2.5'], database: Boolean(c.env.DB), storage: Boolean(c.env.MEDIA), googleSignIn: Boolean(c.env.GOOGLE_CLIENT_ID && c.env.GOOGLE_CLIENT_SECRET) }));
 
 app.get('/api/auth/session', async (c) => {
   const user = await currentUser(c);
@@ -363,8 +307,23 @@ app.post('/api/auth/signup', async (c) => {
 
 app.post('/api/auth/login', async (c) => {
   const input = await c.req.json<{ email?: string; password?: string }>().catch(() => ({} as { email?: string; password?: string }));
-  const user = await findUserByEmail(c.env, String(input.email || '').trim().toLowerCase());
-  if (!user || !(await passwordMatches(user, String(input.password || '')))) return c.json({ error: 'Email or password is incorrect.' }, 401);
+  const login = String(input.email || '').trim();
+  const password = String(input.password || '');
+  const adminEmail = (c.env.ADMIN_EMAIL || 'admin@fxrkenart.local').trim().toLowerCase();
+  if (c.env.ADMIN_USERNAME && c.env.ADMIN_PASSWORD && login === c.env.ADMIN_USERNAME && password === c.env.ADMIN_PASSWORD) {
+    let admin = await findUserByEmail(c.env, adminEmail);
+    if (!admin) {
+      await createUser(c.env, 'FXRKENART Admin', adminEmail, randomHex(32));
+      admin = await findUserByEmail(c.env, adminEmail);
+    }
+    if (!admin) return c.json({ error: 'Could not create the admin account.' }, 500);
+    await run(c.env, "UPDATE users SET plan = 'upgrade', credits = 999999, updated_at = CURRENT_TIMESTAMP WHERE id = ?", admin.id);
+    const adminUser = await first<UserRow>(c.env, 'SELECT id, name, email, credits, plan FROM users WHERE id = ?', admin.id);
+    await beginSession(c, admin.id);
+    return c.json({ user: publicUser(adminUser) });
+  }
+  const user = await findUserByEmail(c.env, login.toLowerCase());
+  if (!user || !(await passwordMatches(user, password))) return c.json({ error: 'Email or password is incorrect.' }, 401);
   await beginSession(c, user.id);
   return c.json({ user: publicUser(user) });
 });
