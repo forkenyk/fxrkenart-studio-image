@@ -1,4 +1,4 @@
-import { useRef, useState, type ClipboardEvent, type DragEvent } from 'react';
+import { useEffect, useRef, useState, type ClipboardEvent, type DragEvent } from 'react';
 import type { ReferenceAsset } from '../../lib/types';
 
 interface PromptPanelProps {
@@ -19,7 +19,16 @@ export function PromptPanel({ prompt, references, chips, autoPolish, onPrompt, o
   const [tagOpen, setTagOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [dragging, setDragging] = useState(false);
+  const tagPanelRef = useRef<HTMLDivElement>(null);
   const filtered = references.filter((item) => item.name.toLowerCase().includes(query.toLowerCase().trim()));
+
+  useEffect(() => {
+    function closeTagPanel(event: PointerEvent) {
+      if (tagPanelRef.current && !tagPanelRef.current.contains(event.target as Node)) setTagOpen(false);
+    }
+    document.addEventListener('pointerdown', closeTagPanel);
+    return () => document.removeEventListener('pointerdown', closeTagPanel);
+  }, []);
 
   function openTagPanel() {
     setQuery('');
@@ -117,7 +126,7 @@ export function PromptPanel({ prompt, references, chips, autoPolish, onPrompt, o
         <div className="prompt-tools"><button type="button" className="glow-control" onClick={() => inputRef.current?.click()} aria-label="Add image" title="Upload image">⌁</button><button type="button" className="glow-control" onClick={() => void pasteFromClipboard()} aria-label="Paste image from clipboard" title="Paste image from clipboard">▣</button><button type="button" className="glow-control" onClick={() => onPrompt('')} aria-label="Clear prompt" title="Clear prompt">♲</button></div>
         <label className="polish-toggle"><span>Auto Polish</span><input type="checkbox" checked={autoPolish} onChange={(event) => onAutoPolish(event.target.checked)} /><i /></label>
       </div>
-      {tagOpen && <div className="tag-panel open">
+      {tagOpen && <div ref={tagPanelRef} className="tag-panel open">
         <div className="tag-panel-head"><span className="tag-symbol">@</span><strong>References</strong><button type="button" onClick={() => setTagOpen(false)} aria-label="Close references">×</button></div>
         <div className="tag-search"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search uploaded images" autoFocus /></div>
         {references.length === 0 ? <div className="reference-empty"><strong>No references yet</strong><button type="button" onClick={() => inputRef.current?.click()}>＋ Add image</button></div> : <div className="reference-list">{filtered.map((item) => <article className="reference-item" key={item.id}><img src={item.url} alt={item.name} /><div className="reference-item-info"><span title={item.name}>{item.name}</span><button type="button" onClick={() => { onTag(item); setTagOpen(false); }}>Tag</button></div></article>)}</div>}

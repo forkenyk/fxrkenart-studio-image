@@ -66,7 +66,9 @@ function findImageBlock(value: unknown): { data?: string; mime_type?: string } |
     return null;
   }
   const record = value as Record<string, unknown>;
-  if (typeof record.data === 'string' && (typeof record.mime_type === 'string' || record.type === 'image')) return { data: record.data, mime_type: typeof record.mime_type === 'string' ? record.mime_type : 'image/png' };
+  if (typeof record.data === 'string' && (typeof record.mime_type === 'string' || record.type === 'image' || record.type === 'output_image')) return { data: record.data, mime_type: typeof record.mime_type === 'string' ? record.mime_type : 'image/png' };
+  if (typeof record.b64_json === 'string') return { data: record.b64_json, mime_type: typeof record.mime_type === 'string' ? record.mime_type : 'image/png' };
+  if (typeof record.image_bytes === 'string') return { data: record.image_bytes, mime_type: typeof record.mime_type === 'string' ? record.mime_type : 'image/png' };
   for (const child of Object.values(record)) {
     const found = findImageBlock(child);
     if (found) return found;
@@ -149,7 +151,11 @@ async function generateWithGemini(env: ProviderEnv, input: GenerateInput): Promi
   });
   if (!response.ok) throw new Error(await responseError(response, 'Google rejected the image request'));
   const payload = await response.json().catch(() => ({})) as any;
-  const output = payload?.output_image || payload?.interaction?.output_image || findImageBlock(payload?.output) || findImageBlock(payload);
+  // Interactions returns a convenient `output_image` for a single image, but
+  // can also return the same image inside steps/output when the response is
+  // interleaved. Accept both shapes so a successful provider call always
+  // reaches the gallery.
+  const output = payload?.output_image || payload?.interaction?.output_image || findImageBlock(payload?.output) || findImageBlock(payload?.steps) || findImageBlock(payload);
   if (!output?.data) throw new Error('Google completed without returning an image.');
   return [{ bytes: base64ToArrayBuffer(output.data), mimeType: output.mime_type || 'image/png' }];
 }

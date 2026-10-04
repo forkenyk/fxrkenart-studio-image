@@ -2800,6 +2800,63 @@ body .nexus-home, body .app-shell { position: relative; z-index: 1; background: 
   .fx-workspace .loader-pulse i { animation: none; }
 }
 
+/* Simplified studio pass: fewer controls, readable scale, stable popovers. */
+.fx-workspace .profile-anchor { position: relative; display: inline-flex; }
+.fx-workspace .profile-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 320px;
+  padding: 10px;
+  border-radius: 20px;
+  transform-origin: top right;
+  animation: profile-pop .16s ease-out both;
+}
+.fx-workspace .profile-menu .account-head { padding: 13px 12px 15px; gap: 12px; }
+.fx-workspace .profile-menu .account-head strong { font-size: 14px; }
+.fx-workspace .profile-menu .account-head small { font-size: 12px; }
+.fx-workspace .profile-menu > button { min-height: 42px; padding: 0 12px; font-size: 13px; }
+.fx-workspace .profile-menu hr { margin: 8px 0; }
+.fx-workspace .profile-menu-avatar { width: 38px; height: 38px; border-radius: 12px; }
+.fx-workspace .media-tabs { grid-template-columns: repeat(2, 1fr); }
+.fx-workspace .media-tabs button { height: 36px; font-size: 12px; }
+.fx-workspace .media-tabs button:disabled { opacity: .48; cursor: default; }
+.fx-workspace .studio-create-panel { width: 100%; }
+.fx-workspace .panel-field-label { font-size: 11px; }
+.fx-workspace .model-row,
+.fx-workspace .output-row { min-height: 64px; padding: 11px 13px; border-radius: 15px; }
+.fx-workspace .model-provider,
+.fx-workspace .output-icon { width: 38px; height: 38px; border-radius: 12px; font-size: 11px; }
+.fx-workspace .model-copy strong,
+.fx-workspace .output-row strong { font-size: 14px; }
+.fx-workspace .model-copy small,
+.fx-workspace .output-row small { font-size: 11px; }
+.fx-workspace .prompt-card { padding: 16px; border-radius: 17px; }
+.fx-workspace .prompt-heading strong { font-size: 14px; }
+.fx-workspace #promptInput { min-height: 148px; font-size: 14px; line-height: 1.58; }
+.fx-workspace .visual-reference-drop { min-height: 68px; padding: 11px; }
+.fx-workspace .visual-reference-drop strong { font-size: 12px; }
+.fx-workspace .visual-reference-drop small,
+.fx-workspace .visual-reference-drop em { font-size: 10px; }
+.fx-workspace .prompt-tools button { width: 34px; height: 34px; }
+.fx-workspace .polish-toggle { font-size: 11px; }
+.fx-workspace .output-popover { padding: 17px; gap: 16px; border-radius: 18px; }
+.fx-workspace .output-popover-head strong { font-size: 15px; }
+.fx-workspace .output-popover-head small { font-size: 10px; }
+.fx-workspace .output-label { font-size: 11px; }
+.fx-workspace .output-chip { min-width: 44px; height: 34px; font-size: 11px; }
+.fx-workspace .quality-option { min-height: 54px; padding: 9px 8px; }
+.fx-workspace .quality-option strong { font-size: 11px; }
+.fx-workspace .quality-option small { font-size: 9px; }
+.fx-workspace .generate-button { height: 52px; border-radius: 14px; }
+.fx-workspace .generate-button span { font-size: 14px; }
+.fx-workspace .generate-button small { font-size: 11px; }
+.fx-workspace .result-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.fx-workspace .result-board { padding: 26px; }
+.fx-workspace .result-board-head strong { font-size: 16px; }
+.fx-workspace .result-board-head span { font-size: 12px; }
+@keyframes profile-pop { from { opacity: 0; transform: translateY(-5px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
 /* Readability pass: match the reference video's relaxed 1280x720 density. */
 .fx-workspace .workspace-topbar {
   flex-basis: 62px;
@@ -2997,3 +3054,44 @@ body .nexus-home, body .app-shell { position: relative; z-index: 1; background: 
   background: #ff6b83;
   box-shadow: 0 0 9px rgba(255,107,131,.9);
 }
+
+/* Final workspace overrides are kept at EOF so older theme passes cannot
+   accidentally restore the removed controls or compact typography. */
+.fx-workspace .profile-anchor { position: relative; display: inline-flex; }
+.fx-workspace .profile-anchor .profile-menu { position: absolute; top: calc(100% + 12px); right: 0; width: 320px; padding: 10px; border-radius: 20px; animation: profile-pop .16s ease-out both; }
+.fx-workspace .profile-menu .account-head { padding: 13px 12px 15px; gap: 12px; }
+.fx-workspace .profile-menu .account-head strong { font-size: 14px; }
+.fx-workspace .profile-menu .account-head small { font-size: 12px; }
+.fx-workspace .profile-menu > button { min-height: 42px; padding: 0 12px; font-size: 13px; }
+.fx-workspace .profile-menu-avatar { width: 38px; height: 38px; border-radius: 12px; }
+.fx-workspace .media-tabs { grid-template-columns: repeat(2, 1fr); }
+.fx-workspace .media-tabs button { height: 36px; font-size: 12px; }
+.fx-workspace .media-tabs button:disabled { opacity: .48; cursor: default; }
+.fx-workspace .model-row, .fx-workspace .output-row { min-height: 64px; padding: 11px 13px; border-radius: 15px; }
+.fx-workspace .model-provider, .fx-workspace .output-icon { width: 38px; height: 38px; border-radius: 12px; font-size: 11px; }
+.fx-workspace .model-copy strong, .fx-workspace .output-row strong { font-size: 14px; }
+.fx-workspace .model-copy small, .fx-workspace .output-row small { font-size: 11px; }
+.fx-workspace .prompt-card { padding: 16px; border-radius: 17px; }
+.fx-workspace .prompt-heading strong { font-size: 14px; }
+.fx-workspace #promptInput { min-height: 148px; font-size: 14px; line-height: 1.58; }
+.fx-workspace .visual-reference-drop { min-height: 68px; padding: 11px; }
+.fx-workspace .visual-reference-drop strong { font-size: 12px; }
+.fx-workspace .visual-reference-drop small, .fx-workspace .visual-reference-drop em { font-size: 10px; }
+.fx-workspace .prompt-tools button { width: 34px; height: 34px; }
+.fx-workspace .polish-toggle { font-size: 11px; }
+.fx-workspace .output-popover { padding: 17px; gap: 16px; border-radius: 18px; }
+.fx-workspace .output-popover-head strong { font-size: 15px; }
+.fx-workspace .output-popover-head small { font-size: 10px; }
+.fx-workspace .output-label { font-size: 11px; }
+.fx-workspace .output-chip { min-width: 44px; height: 34px; font-size: 11px; }
+.fx-workspace .quality-option { min-height: 54px; padding: 9px 8px; }
+.fx-workspace .quality-option strong { font-size: 11px; }
+.fx-workspace .quality-option small { font-size: 9px; }
+.fx-workspace .generate-button { height: 52px; border-radius: 14px; }
+.fx-workspace .generate-button span { font-size: 14px; }
+.fx-workspace .generate-button small { font-size: 11px; }
+.fx-workspace .result-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.fx-workspace .result-board { padding: 26px; }
+.fx-workspace .result-board-head strong { font-size: 16px; }
+.fx-workspace .result-board-head span { font-size: 12px; }
+@keyframes profile-pop { from { opacity: 0; transform: translateY(-5px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }

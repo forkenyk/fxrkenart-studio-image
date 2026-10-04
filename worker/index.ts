@@ -186,7 +186,10 @@ function authRedirect(c: any, error?: string) {
 }
 
 function generationCost(model: ModelName, quality: Quality, resolution: string, count: number) {
-  return Math.round(priceTable[model][quality] * (resolution === '4K' ? 1 : .55) * Math.min(4, Math.max(1, count)));
+  const singleImage = model === 'Nano Banana PRO'
+    ? (resolution === '4K' ? 100 : 60)
+    : priceTable[model][quality];
+  return Math.round(singleImage * Math.min(4, Math.max(1, count)));
 }
 
 function isModel(value: unknown): value is ModelName {
@@ -339,10 +342,10 @@ app.get('/api/auth/me', async (c) => {
 });
 
 app.get('/api/credits/packages', (c) => c.json({ packages: [
-  { code: 'starter', credits: 1000, amount_vnd: 100000 },
-  { code: 'creator', credits: 2750, amount_vnd: 250000 },
-  { code: 'pro', credits: 6000, amount_vnd: 500000 },
-  { code: 'studio', credits: 13000, amount_vnd: 1000000 },
+  { code: 'starter', name: 'Starter', credits: 1000, amount_vnd: 100000, bonus_percent: 0, nano_4k_images: 10 },
+  { code: 'creator', name: 'Creator', credits: 2700, amount_vnd: 250000, bonus_percent: 8, nano_4k_images: 27, featured: true },
+  { code: 'pro', name: 'Pro', credits: 5700, amount_vnd: 500000, bonus_percent: 14, nano_4k_images: 57 },
+  { code: 'studio', name: 'Studio', credits: 12000, amount_vnd: 1000000, bonus_percent: 20, nano_4k_images: 120 },
 ] }));
 
 app.get('/api/credits/history', async (c) => {
@@ -389,12 +392,12 @@ app.post('/api/generate', async (c) => {
   if (!user) return c.json({ error: 'Authentication required.' }, 401);
   const input = await c.req.json<any>().catch(() => ({}));
   const model = input.model as ModelName;
-  const quality = input.quality as Quality;
+  const quality = isQuality(input.quality) ? input.quality : 'High';
   const resolution = input.resolution === '4K' ? '4K' : '2K';
   const count = Math.min(4, Math.max(1, Number(input.count || 1)));
   const referenceIds: string[] = Array.isArray(input.reference_ids) ? input.reference_ids.filter((value: unknown): value is string => typeof value === 'string').slice(0, 14) : [];
   if (!isModel(model)) return c.json({ error: 'Model must be Nano Banana PRO or ChatGPT 2.5.' }, 400);
-  if (!isQuality(quality)) return c.json({ error: 'Quality is invalid.' }, 400);
+  if (model === 'ChatGPT 2.5' && !isQuality(input.quality)) return c.json({ error: 'Quality is required for ChatGPT 2.5.' }, 400);
   if (typeof input.prompt !== 'string' || !input.prompt.trim() || input.prompt.length > 10000) return c.json({ error: 'Prompt is required and must be under 10,000 characters.' }, 400);
   if (referenceIds.length) {
     const owned = await first<{ total: number }>(c.env, `SELECT COUNT(*) AS total FROM assets WHERE user_id = ? AND kind = 'reference' AND id IN (${referenceIds.map(() => '?').join(',')})`, user.id, ...referenceIds);

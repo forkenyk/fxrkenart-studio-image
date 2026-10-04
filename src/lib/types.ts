@@ -72,20 +72,25 @@ export const MODEL_META: Record<ModelName, { provider: string; mark: string; des
   'Nano Banana PRO': {
     provider: 'Google',
     mark: 'NB',
-    description: 'High-detail generation and image editing',
+    description: 'Gemini 3 Pro Image · 2K / 4K output',
   },
   'ChatGPT 2.5': {
     provider: 'OpenAI',
     mark: 'GPT',
-    description: 'Prompt-led image generation and edits',
+    description: 'Quality control · size follows aspect ratio',
   },
 };
 
 export const PRICE_TABLE: Record<ModelName, Record<Quality, number>> = {
-  'Nano Banana PRO': { Low: 45, Medium: 60, High: 80 },
+  // Nano Banana Pro has no Quality parameter. These values are only kept for
+  // the shared request shape; the real Nano price is resolution-based below.
+  'Nano Banana PRO': { Low: 60, Medium: 60, High: 60 },
   'ChatGPT 2.5': { Low: 35, Medium: 50, High: 70 },
 };
 
 export function generationCost(model: ModelName, quality: Quality, resolution: Resolution, count: number): number {
-  return Math.round((PRICE_TABLE[model][quality] * (resolution === '4K' ? 1 : .55) * count));
+  const singleImage = model === 'Nano Banana PRO'
+    ? (resolution === '4K' ? 100 : 60)
+    : PRICE_TABLE[model][quality];
+  return Math.round(singleImage * count);
 }

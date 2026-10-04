@@ -27,8 +27,8 @@ export default function App() {
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState('');
   const [model, setModel] = useState<ModelName>(initialModel);
-  const [quality, setQuality] = useState<Quality>('Medium');
-  const [resolution, setResolution] = useState<Resolution>('2K');
+  const [quality, setQuality] = useState<Quality>('High');
+  const [resolution, setResolution] = useState<Resolution>('4K');
   const [ratio, setRatio] = useState<AspectRatio>('4:5');
   const [count, setCount] = useState(1);
   const [prompt, setPrompt] = useState('');
@@ -46,6 +46,16 @@ export default function App() {
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [generating, setGenerating] = useState(false);
+
+  useEffect(() => {
+    function closeFloatingPanels(event: PointerEvent) {
+      const target = event.target as Element;
+      if (!target.closest('.model-row, .model-popover')) setModelOpen(false);
+      if (!target.closest('.output-row, .output-popover')) setOutputOpen(false);
+    }
+    document.addEventListener('pointerdown', closeFloatingPanels);
+    return () => document.removeEventListener('pointerdown', closeFloatingPanels);
+  }, []);
 
   function setStatus(message: string, kind = '') {
     setStatusText(message);
