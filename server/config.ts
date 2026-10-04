@@ -10,6 +10,10 @@ export const config = {
   soulTextPath: process.env.HF_SOUL_TEXT_PATH || '/higgsfield-ai/soul/standard',
   soulImagePath: process.env.HF_SOUL_IMAGE_PATH || '/higgsfield-ai/soul/v2/image-to-image',
   nanoPath: process.env.HF_NANO_BANANA_PATH || '',
+  googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+  googleRedirectUri: process.env.GOOGLE_REDIRECT_URI || '',
+  googleAppUrl: process.env.GOOGLE_APP_URL || '',
 };
 
 export const priceTable = {

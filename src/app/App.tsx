@@ -3,7 +3,7 @@ import { HomeScreen } from '../components/HomeScreen';
 import { AuthModal } from '../components/auth/AuthModal';
 import { StudioShell } from '../components/studio/StudioShell';
 import { UpgradeModal } from '../components/billing/UpgradeModal';
-import { authenticate, createGeneration, getAccount, getGeneration, getLibrary, getSession, logout, uploadReference } from '../lib/api';
+import { authenticate, createGeneration, getAccount, getGeneration, getLibrary, getSession, googleAuthUrl, logout, uploadReference } from '../lib/api';
 import { generationCost, type AspectRatio, type GalleryResult, type GenerationResult, type HistoryEntry, type ModelName, type Quality, type ReferenceAsset, type Resolution, type User } from '../lib/types';
 
 const initialModel: ModelName = 'Nano Banana PRO';
@@ -12,6 +12,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [authEmail, setAuthEmail] = useState('');
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState('');
   const [model, setModel] = useState<ModelName>(initialModel);
@@ -59,10 +60,34 @@ export default function App() {
     }).catch(() => undefined);
   }, [refreshAccount, refreshLibrary]);
 
-  function openAuth(mode: 'login' | 'signup') {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authErrorFromRedirect = params.get('auth_error');
+    if (!authErrorFromRedirect) return;
+    const messages: Record<string, string> = {
+      google_not_configured: 'Google sign-in is not configured on the server yet.',
+      google_state: 'Google sign-in expired. Please try again.',
+      google_failed: 'Google sign-in could not be completed. Please try again.',
+    };
+    setAuthError(messages[authErrorFromRedirect] || 'Sign-in could not be completed.');
+    setAuthMode('login');
+    setAuthOpen(true);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }, []);
+
+  function openAuth(mode: 'login' | 'signup', email = '') {
     setAuthMode(mode);
+    setAuthEmail(email);
     setAuthError('');
     setAuthOpen(true);
+  }
+
+  function handleEmailContinue(email: string) {
+    openAuth('signup', email);
+  }
+
+  function handleGoogleAuth() {
+    window.location.assign(googleAuthUrl());
   }
 
   async function handleAuth(values: { name?: string; email: string; password: string }, mode: 'login' | 'signup') {
@@ -182,7 +207,7 @@ export default function App() {
 
   const selectedViewerResult = useMemo(() => viewerResult && 'url' in viewerResult ? viewerResult : null, [viewerResult]);
 
-  if (!user) return <><HomeScreen onLogin={() => openAuth('login')} onSignup={() => openAuth('signup')} /><AuthModal open={authOpen} initialMode={authMode} busy={authBusy} error={authError} onClose={() => setAuthOpen(false)} onSubmit={handleAuth} /></>;
+  if (!user) return <><HomeScreen onLogin={() => openAuth('login')} onSignup={() => openAuth('signup')} onEmailContinue={handleEmailContinue} onGoogle={handleGoogleAuth} /><AuthModal open={authOpen} initialMode={authMode} prefillEmail={authEmail} busy={authBusy} error={authError} onClose={() => setAuthOpen(false)} onGoogle={handleGoogleAuth} onSubmit={handleAuth} /></>;
 
   return <><StudioShell user={user} model={model} quality={quality} resolution={resolution} ratio={ratio} count={count} prompt={prompt} autoPolish={autoPolish} references={references} chips={chips} results={results} credits={credits} history={history} status={status} statusKind={statusKind} modelOpen={modelOpen} outputOpen={outputOpen} viewerResult={selectedViewerResult} creditsOpen={creditsOpen} onLogout={handleLogout} onModelOpen={() => { setModelOpen((value) => !value); setOutputOpen(false); }} onModel={(value) => { setModel(value); setModelOpen(false); }} onOutputOpen={() => { setOutputOpen((value) => !value); setModelOpen(false); }} onRatio={setRatio} onQuality={setQuality} onResolution={setResolution} onPrompt={setPrompt} onAutoPolish={setAutoPolish} onUpload={handleUpload} onRemoveReference={removeReference} onTag={tagReference} onCount={setCount} onGenerate={startGeneration} onClear={() => setResults([])} onOpenViewer={setViewerResult} onCloseViewer={() => setViewerResult(null)} onUseReference={useResultAsReference} onOpenCredits={() => setCreditsOpen(true)} onCloseCredits={() => setCreditsOpen(false)} onUpgrade={() => setUpgradeOpen(true)} /><UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} onSelect={(label) => setStatus(`${label} selected. Payment gateway will be connected before public launch.`, 'success')} /></>;
 }
