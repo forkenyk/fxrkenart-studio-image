@@ -28,85 +28,100 @@ export function HomeScreen({ onLogin, onSignup, onEmailContinue, onGoogle }: Hom
   }
 
   return (
-    <div className="home-screen secure-home">
-      <div className="secure-noise" aria-hidden="true" />
-      <header className="home-header">
-        <a className="home-brand" href="/" aria-label="FXRKENART home">
-          <span className="brand-mark">F</span>
+    <div className="home-screen secure-home nexus-home">
+      <div className="nexus-background" aria-hidden="true" />
+      <header className="home-header nexus-header">
+        <a className="home-brand nexus-brand" href="/" aria-label="FXRKENART home">
+          <span className="brand-mark"><img src="/assets/fxrken-logo-transparent.png" alt="" /></span>
           <span>FXRKENART</span>
         </a>
-        <nav className="secure-nav" aria-label="Main navigation">
-          <a href="#studio">STUDIO</a>
-          <a href="#models">MODELS</a>
-          <a href="#pricing">PRICING</a>
+        <nav className="secure-nav nexus-nav" aria-label="Main navigation">
+          <a href="#studio">Studio</a>
+          <a href="#models">Models</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#about">About</a>
         </nav>
-        <div className="home-auth-actions">
-          <button className="home-login glow-control" onClick={onLogin}>LOG IN</button>
-          <button className="home-signup glow-control" onClick={onSignup}>SIGN UP <span>↗</span></button>
+        <div className="home-auth-actions nexus-auth-actions">
+          <button className="home-login glow-control" onClick={onLogin}>Log in</button>
+          <button className="home-signup glow-control" onClick={onSignup}>Sign up <span>↗</span></button>
         </div>
       </header>
 
-      <main className="secure-home-main" id="studio">
-        <section className="secure-hero">
-          <div className="secure-hero-copy">
-            <div className="secure-kicker"><span>01</span><i />GENERATIVE IMAGE STUDIO</div>
-            <h1>MAKE EVERY<br /><em>FRAME</em><br />COUNT.</h1>
-            <p>Private image generation for ideas, references and work that needs to hold up.</p>
+      <main className="secure-home-main nexus-main" id="studio">
+        <section className="nexus-hero">
+          <div className="nexus-pill"><span>✦</span> Private image generation for visual work</div>
+          <h1>Make something<br />that feels <em>yours.</em></h1>
+          <p>Turn ideas, references and rough direction into images with a focused studio built for your visual language.</p>
 
-            <section className="home-auth-panel" aria-label="Create or sign in to your account">
-              <form className="home-email-form" onSubmit={submit}>
-                <label htmlFor="home-email">ENTER YOUR EMAIL</label>
-                <div className="home-email-row">
-                  <input
-                    id="home-email"
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder="you@email.com"
-                    autoComplete="email"
-                    required
-                  />
-                  <button className="home-email-submit glow-control" type="submit">CONTINUE <span>↗</span></button>
-                </div>
-              </form>
-              <div className="home-auth-divider"><span /> <small>OR</small> <span /></div>
-              <button className="home-google-button glow-control" type="button" onClick={onGoogle}>
-                <GoogleMark />
-                <span>CONTINUE WITH GOOGLE</span>
-              </button>
-              <small className="home-auth-note">By continuing, you agree to the studio terms and privacy policy.</small>
-            </section>
-            <div className="home-auth-switch">ALREADY HAVE AN ACCOUNT? <button className="home-inline-link glow-control" onClick={onLogin}>LOG IN</button></div>
+          <section className="home-auth-panel nexus-auth-panel" aria-label="Create or sign in to your account">
+            <form className="home-email-form" onSubmit={submit}>
+              <label htmlFor="home-email">Start with your email</label>
+              <div className="home-email-row">
+                <input
+                  id="home-email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="you@email.com"
+                  autoComplete="email"
+                  required
+                />
+                <button className="home-email-submit glow-control" type="submit">Continue <span>↗</span></button>
+              </div>
+            </form>
+            <div className="home-auth-divider"><span /> <small>or</small> <span /></div>
+            <button className="home-google-button glow-control" type="button" onClick={onGoogle}>
+              <GoogleMark />
+              <span>Continue with Google</span>
+            </button>
+            <small className="home-auth-note">By continuing, you agree to the studio terms and privacy policy.</small>
+          </section>
+          <div className="home-auth-switch">Already have an account? <button className="home-inline-link glow-control" onClick={onLogin}>Log in</button></div>
+        </section>
+
+        <section className="nexus-workspace-preview" aria-label="FXRKENART Studio preview">
+          <div className="nexus-preview-topbar">
+            <div className="nexus-window-dots"><i /><i /><i /></div>
+            <span>FXRKENART / IMAGE STUDIO</span>
+            <b>PRIVATE WORKSPACE</b>
           </div>
-
-          <div className="secure-hero-visual" aria-label="FXRKENART image system preview">
-            <span className="secure-crop secure-crop-tl" /><span className="secure-crop secure-crop-tr" />
-            <span className="secure-crop secure-crop-bl" /><span className="secure-crop secure-crop-br" />
-            <div className="secure-art-frame">
-              <div className="secure-art-hatch" />
-              <div className="secure-art-grid" />
-              <div className="secure-art-block secure-art-shadow" />
-              <div className="secure-art-block secure-art-cyan" />
-              <div className="secure-art-block secure-art-stone"><span>F</span></div>
-              <div className="secure-art-ring" />
-              <div className="secure-art-readout"><span>REFERENCE / 01</span><b>READY</b></div>
-              <div className="secure-art-axis secure-art-axis-x" /><div className="secure-art-axis secure-art-axis-y" />
+          <div className="nexus-preview-grid">
+            <aside className="nexus-preview-sidebar">
+              <div className="nexus-preview-brand"><span className="preview-logo"><img src="/assets/fxrken-logo-transparent.png" alt="" /></span><span>FXRKENART</span></div>
+              <div className="nexus-preview-nav active"><span>＋</span> New image</div>
+              <div className="nexus-preview-nav"><span>◌</span> Image library</div>
+              <div className="nexus-preview-nav"><span>⌁</span> References</div>
+              <div className="nexus-preview-sidebar-footer"><span>Models</span><strong>Soul · Nano Banana PRO</strong></div>
+            </aside>
+            <div className="nexus-preview-canvas">
+              <div className="nexus-canvas-heading"><span>CREATE / 01</span><b>2K · 4:5</b></div>
+              <div className="nexus-logo-stage">
+                <div className="nexus-logo-halo" />
+                <img src="/assets/fxrken-logo-transparent.png" alt="FXRKENART 3D logo" />
+                <span className="nexus-stage-label">REFERENCE READY</span>
+              </div>
+              <div className="nexus-canvas-prompt"><span>Describe your image...</span><b>Generate <small>✦ 8.5</small></b></div>
             </div>
-            <div className="secure-visual-meta"><span>IMAGE SYSTEM</span><b>PRIVATE / 01</b></div>
+            <aside className="nexus-preview-controls">
+              <div className="preview-control-title">Generation settings</div>
+              <div className="preview-control-row"><span>Model</span><strong>Nano Banana PRO</strong></div>
+              <div className="preview-control-row"><span>Quality</span><strong>High</strong></div>
+              <div className="preview-control-row"><span>References</span><strong>03 images</strong></div>
+              <div className="preview-credit"><span>Credits remaining</span><strong>2,480</strong></div>
+            </aside>
           </div>
         </section>
 
-        <section className="secure-proof-strip" id="models">
-          <span><b>02</b> MODELS</span>
-          <strong>SOUL <i>·</i> NANO BANANA PRO</strong>
-          <span><b>∞</b> PRIVATE LIBRARY</span>
-          <span><b>4K</b> OUTPUT READY</span>
+        <section className="nexus-proof" id="models">
+          <div><span>Built for images that need to hold up.</span><strong>SOUL <i>·</i> NANO BANANA PRO</strong></div>
+          <div><span>Private by default</span><strong>YOUR LIBRARY, YOUR WORK</strong></div>
+          <div><span>Output when it matters</span><strong>UP TO 4K READY</strong></div>
         </section>
       </main>
 
-      <footer className="secure-footer" id="pricing">
+      <footer className="secure-footer nexus-footer" id="pricing">
         <span>FXRKENART / IMAGE STUDIO</span>
-        <span>BUILT FOR VISUAL WORK</span>
+        <span>MAKE IT YOURS</span>
         <span>2026</span>
       </footer>
     </div>
