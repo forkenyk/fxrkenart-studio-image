@@ -2018,3 +2018,36 @@ body::after { opacity: .025; }
   .retention-banner { margin-inline: 20px; }
   .result-board { padding: 20px; }
 }
+
+/* Final cascade lock: keep the secure palette above every legacy theme rule. */
+:root {
+  --bg: #050606;
+  --panel: #0b0e0f;
+  --raise: #111617;
+  --line: rgba(235, 243, 240, .16);
+  --line-soft: rgba(235, 243, 240, .08);
+  --text: #f1f3ee;
+  --muted: #929c9c;
+  --dim: #5d6767;
+  --acc: #69d9dd;
+  --acc-h: #b8fbfa;
+  --electric: #69d9dd;
+}
+
+html body { background: #050606 !important; color: #f1f3ee; }
+body .secure-home { background: radial-gradient(520px 460px at 77% 45%, rgba(41,149,157,.09), transparent 72%), linear-gradient(180deg, #050606 0%, #070909 100%); }
+.secure-home .home-email-submit { background: var(--acc); color: #061011; }
+.secure-home .secure-hero h1 em { color: var(--acc); }
+.secure-home .home-signup { background: var(--acc); color: #061011; }
+.secure-home .secure-kicker { color: var(--acc); }
+
+body .app-shell { background: #060808 !important; }
+.app-shell .creation-area { background: radial-gradient(560px 420px at 70% 20%, rgba(35,124,131,.09), transparent 72%), #070a0a; }
+.app-shell .generate-button { background: var(--acc); color: #061011; }
+.app-shell .upgrade-button { background: transparent; color: var(--acc); }
+.app-shell .credit-diamond { color: var(--acc); }
+.app-shell .cinema-hero h1 em { color: var(--acc); }
+.app-shell .hero-rule span { background: var(--acc); box-shadow: 0 0 12px rgba(105,217,221,.5); }
+.app-shell .glow-control::before,
+.auth-modal .glow-control::before,
+.secure-home .glow-control::before { background: conic-gradient(from var(--glow-angle), transparent 0 48deg, rgba(255,255,255,.96) 62deg, rgba(105,217,221,.9) 86deg, transparent 116deg 360deg); }
