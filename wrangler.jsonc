@@ -1,10 +1,23 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "fxrkenart-studio-image",
+  "main": "worker/index.ts",
   "compatibility_date": "2026-10-04",
-
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
   }
+
+  // Add the real IDs after creating these resources once:
+  // "d1_databases": [{
+  //   "binding": "DB",
+  //   "database_name": "fxrkenart-studio-image",
+  //   "database_id": "PASTE_D1_DATABASE_ID"
+  // }],
+  // "r2_buckets": [{
+  //   "binding": "MEDIA",
+  //   "bucket_name": "fxrkenart-studio-image-media"
+  // }]
 }

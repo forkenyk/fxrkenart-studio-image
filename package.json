@@ -10,7 +10,9 @@
     "dev": "node scripts/dev.mjs",
     "dev:web": "vite",
     "dev:api": "node --watch --import tsx server/index.ts",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && npm run typecheck:worker && vite build",
+    "typecheck:worker": "tsc --noEmit -p tsconfig.worker.json",
+    "deploy": "npm run build && npx wrangler deploy",
     "preview": "vite preview",
     "start:api": "node --import tsx server/index.ts"
   },

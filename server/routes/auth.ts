@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import type { Context } from 'hono';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
 import { createUser, currentUser, endSession, findUserByEmail, findUserById, passwordMatches, publicUser, beginSession } from '../auth';
-import { one } from '../db';
+import { many, one } from '../db';
 import { config } from '../config';
 
 const GOOGLE_STATE_COOKIE = 'fxrkenart_google_state';
@@ -133,5 +133,6 @@ authRoutes.post('/logout', (c) => {
 authRoutes.get('/me', (c) => {
   const user = currentUser(c);
   if (!user) return c.json({ error: 'Authentication required.' }, 401);
-  return c.json({ user: publicUser(user) });
+  const history = many('SELECT type, amount, balance_after, note, created_at FROM credit_ledger WHERE user_id = ? ORDER BY created_at DESC LIMIT 100', user.id);
+  return c.json({ user: publicUser(user), credits: Number(user.credits), history });
 });

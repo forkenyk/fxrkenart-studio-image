@@ -35,6 +35,34 @@ $env:VITE_BASE_PATH='/studio-image/'; npm run build
 
 The frontend derives its API and media URLs from that base path, so it does not call the parent root `/api` by accident. The parent Worker should route `/studio-image/*` to this child site's static build and `/studio-image/api/*` to the Hono API.
 
+## Deploy the child Worker
+
+The repository now includes `wrangler.jsonc` and `worker/index.ts`, so the child can deploy independently from the parent site. The first deployment needs the persistent Cloudflare resources once:
+
+```bash
+npx wrangler d1 create fxrkenart-studio-image
+npx wrangler r2 bucket create fxrkenart-studio-image-media
+npx wrangler d1 execute fxrkenart-studio-image --remote --file=schema.sql
+```
+
+Copy the D1 ID into the commented `DB` binding in `wrangler.jsonc`, uncomment both `DB` and `MEDIA`, then add the provider values as Worker secrets. Never put these values in the frontend:
+
+```bash
+npx wrangler secret put HF_CREDENTIALS
+npx wrangler secret put HF_NANO_BANANA_PATH
+npx wrangler secret put HF_CHATGPT_25_PATH
+npx wrangler secret put GOOGLE_CLIENT_ID
+npx wrangler secret put GOOGLE_CLIENT_SECRET
+```
+
+For Google sign-in, register this exact callback URL in the Google OAuth client:
+
+```text
+https://fxrkenart-studio-image.forkenyk-work.workers.dev/api/auth/google/callback
+```
+
+Set `APP_URL` to the child Worker URL and deploy with `npm run deploy`. The Worker handles `/api/*`; the asset binding serves the React SPA for everything else.
+
 Fill in the server-side provider values in `.env` before generating:
 
 ```env

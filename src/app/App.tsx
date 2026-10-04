@@ -127,7 +127,21 @@ export default function App() {
 
   async function handleUpload(files: FileList | File[]) {
     if (!user) { openAuth('login'); return; }
-    const selected = Array.from(files).filter((file) => file.type.startsWith('image/')).slice(0, 14 - references.length);
+    const incoming = Array.from(files);
+    const imageFiles = incoming.filter((file) => file.type.startsWith('image/'));
+    const sizeLimit = 20 * 1024 * 1024;
+    const validFiles = imageFiles.filter((file) => file.size <= sizeLimit);
+    const remaining = Math.max(0, 14 - references.length);
+    const selected = validFiles.slice(0, remaining);
+    if (!imageFiles.length) {
+      setStatus('Only image files can be used as visual references.', 'error');
+      return;
+    }
+    if (validFiles.length < imageFiles.length) {
+      setStatus('Each reference image must be under 20 MB.', 'error');
+    } else if (selected.length < validFiles.length) {
+      setStatus('You can use up to 14 references per generation.', 'error');
+    }
     for (const file of selected) {
       const localId = `local-${crypto.randomUUID()}`;
       const preview: ReferenceAsset = { id: localId, name: file.name, url: URL.createObjectURL(file), size: file.size, mimeType: file.type, uploadState: 'uploading' };
@@ -138,6 +152,8 @@ export default function App() {
         URL.revokeObjectURL(preview.url);
       } catch (error) {
         setReferences((current) => current.map((item) => item.id === localId ? { ...item, uploadState: 'failed', uploadError: error instanceof Error ? error.message : 'Upload failed' } : item));
+        URL.revokeObjectURL(preview.url);
+        setStatus(error instanceof Error ? error.message : 'Reference upload failed.', 'error');
       }
     }
   }

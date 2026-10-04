@@ -2899,3 +2899,70 @@ body .nexus-home, body .app-shell { position: relative; z-index: 1; background: 
   .fx-workspace .workspace-identity strong { font-size: 11px; }
   .fx-workspace .studio-create-panel { padding: 15px 14px 13px; }
 }
+
+/* Reference intake: drag into the whole prompt card or paste from the clipboard. */
+.fx-workspace .prompt-card { position: relative; transition: border-color .22s ease, background .22s ease, box-shadow .22s ease; }
+.fx-workspace .prompt-card.is-dragging {
+  border-color: rgba(255, 239, 242, .68);
+  background: linear-gradient(145deg, rgba(255,83,123,.12), rgba(255,255,255,.035));
+  box-shadow: 0 0 0 1px rgba(255,83,123,.2), 0 0 30px rgba(255,83,123,.14), inset 0 0 26px rgba(255,255,255,.03);
+}
+.fx-workspace .prompt-card.is-dragging .visual-reference-drop { border-color: rgba(255,239,242,.7); background: rgba(255,83,123,.13); }
+.fx-workspace .prompt-tools { display: inline-flex; gap: 5px; }
+.fx-workspace .prompt-tools button { position: relative; }
+.fx-workspace .prompt-tools button:hover::after,
+.fx-workspace .prompt-tools button:focus-visible::after {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 7px);
+  z-index: 20;
+  width: max-content;
+  max-width: 180px;
+  padding: 6px 8px;
+  border: 1px solid rgba(255,239,242,.14);
+  border-radius: 7px;
+  background: rgba(26,12,17,.96);
+  color: #f2e2e6;
+  content: attr(title);
+  font-size: 9px;
+  line-height: 1.2;
+  pointer-events: none;
+  box-shadow: 0 12px 30px rgba(0,0,0,.34);
+}
+
+.fx-workspace .ref-thumb { overflow: visible; }
+.fx-workspace .ref-thumb.uploading::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: '';
+  border: 1px solid rgba(255,239,242,.25);
+  border-radius: 13px;
+  background: linear-gradient(135deg, rgba(12,7,9,.18), rgba(255,83,123,.2));
+  pointer-events: none;
+}
+.fx-workspace .ref-thumb.uploading::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 16px;
+  height: 16px;
+  content: '';
+  border: 2px solid rgba(255,239,242,.3);
+  border-top-color: #fff0f3;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: spin .8s linear infinite;
+}
+.fx-workspace .ref-thumb.failed::after {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 6px;
+  height: 6px;
+  content: '';
+  border-radius: 50%;
+  background: #ff6b83;
+  box-shadow: 0 0 9px rgba(255,107,131,.9);
+}

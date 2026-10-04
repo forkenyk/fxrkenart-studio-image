@@ -7,6 +7,10 @@ function endpoint(path: string) {
   return `${API_ROOT}${path}`;
 }
 
+function withCredentials(init: RequestInit = {}): RequestInit {
+  return { ...init, credentials: 'include' };
+}
+
 function mediaUrl(url: string) {
   if (!url.startsWith('/api/media/')) return url;
   return `${API_ROOT}/media/${url.slice('/api/media/'.length)}`;
@@ -14,21 +18,27 @@ function mediaUrl(url: string) {
 
 async function parse<T>(response: Response | Promise<Response>): Promise<T> {
   const resolved = await response;
-  const payload = await resolved.json().catch(() => ({}));
+  const raw = await resolved.text();
+  let payload: any = {};
+  try {
+    payload = raw ? JSON.parse(raw) : {};
+  } catch {
+    throw new Error(resolved.ok ? 'The Studio API is not connected to this deployment yet.' : `Request failed (${resolved.status})`);
+  }
   if (!resolved.ok) throw new Error(payload?.error || `Request failed (${resolved.status})`);
   return payload as T;
 }
 
 export async function getSession(): Promise<{ authenticated: boolean; user: User | null }> {
-  return parse(fetch(endpoint('/auth/session')));
+  return parse(fetch(endpoint('/auth/session'), withCredentials()));
 }
 
 export async function authenticate(mode: 'login' | 'signup', values: { name?: string; email: string; password: string }): Promise<{ user: User }> {
-  return parse(fetch(endpoint(`/auth/${mode}`), {
+  return parse(fetch(endpoint(`/auth/${mode}`), withCredentials({
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(values),
-  }));
+  })));
 }
 
 export function googleAuthUrl() {
@@ -36,22 +46,22 @@ export function googleAuthUrl() {
 }
 
 export async function logout(): Promise<void> {
-  await fetch(endpoint('/auth/logout'), { method: 'POST' });
+  await fetch(endpoint('/auth/logout'), withCredentials({ method: 'POST' }));
 }
 
 export async function getAccount(): Promise<AccountResponse> {
-  return parse(fetch(endpoint('/auth/me')));
+  return parse(fetch(endpoint('/auth/me'), withCredentials()));
 }
 
 export async function uploadReference(file: File): Promise<ReferenceAsset> {
   const form = new FormData();
   form.append('file', file);
-  const asset = await parse<ReferenceAsset>(fetch(endpoint('/upload/reference'), { method: 'POST', body: form }));
+  const asset = await parse<ReferenceAsset>(fetch(endpoint('/upload/reference'), withCredentials({ method: 'POST', body: form })));
   return { ...asset, url: mediaUrl(asset.url) };
 }
 
 export async function getLibrary(): Promise<GenerationResult[]> {
-  const data = await parse<{ results: GenerationResult[] }>(fetch(endpoint('/library')));
+  const data = await parse<{ results: GenerationResult[] }>(fetch(endpoint('/library'), withCredentials()));
   return data.results.map((result) => ({ ...result, url: mediaUrl(result.url) }));
 }
 
@@ -66,7 +76,7 @@ export async function createGeneration(input: {
   referenceIds: string[];
   clientRequestId: string;
 }): Promise<{ jobId: string; status: string; cost: number; balance: number }> {
-  return parse(fetch(endpoint('/generate'), {
+  return parse(fetch(endpoint('/generate'), withCredentials({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -83,10 +93,10 @@ export async function createGeneration(input: {
       reference_ids: input.referenceIds,
       client_request_id: input.clientRequestId,
     }),
-  }));
+  })));
 }
 
 export async function getGeneration(jobId: string): Promise<JobResponse> {
-  const job = await parse<JobResponse>(fetch(endpoint(`/generate/${encodeURIComponent(jobId)}`)));
+  const job = await parse<JobResponse>(fetch(endpoint(`/generate/${encodeURIComponent(jobId)}`), withCredentials()));
   return { ...job, images: job.images?.map((image) => ({ ...image, url: mediaUrl(image.url) })) };
 }

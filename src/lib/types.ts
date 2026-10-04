@@ -2,7 +2,7 @@ export type ModelName = 'Nano Banana PRO' | 'ChatGPT 2.5';
 export type Quality = 'Low' | 'Medium' | 'High';
 export type Resolution = '2K' | '4K';
 export type AspectRatio = 'Auto' | '1:1' | '4:5' | '3:4' | '2:3' | '16:9' | '9:16' | '21:9';
-export type CreditEntryType = 'Granted' | 'Spent' | 'Refunded' | 'Adjusted';
+export type CreditEntryType = 'granted' | 'spent' | 'refunded' | 'adjusted';
 
 export interface User {
   id: string;
