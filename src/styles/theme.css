@@ -2447,3 +2447,22 @@ body .app-shell { background: radial-gradient(600px 420px at 64% 20%, rgba(190,2
   .app-shell .credit-wallet .upgrade-button { display: none; }
   .app-shell .workspace-identity strong { display: none; }
 }
+
+/* Specificity lock for the rounded landing/auth surfaces. */
+body .secure-home.nexus-home { background: transparent !important; }
+.nexus-home::before { display: none; }
+.secure-home.nexus-home .home-auth-panel { border-radius: 24px; background: rgba(20, 10, 13, .70); box-shadow: 0 28px 80px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.055); backdrop-filter: blur(22px); }
+
+.auth-modal { background: rgba(5, 2, 4, .74); backdrop-filter: blur(14px); }
+.auth-card, .upgrade-card, .credits-card, .viewer-shell { border-color: rgba(255,239,242,.13); border-radius: 28px; background: linear-gradient(145deg, rgba(27,12,17,.98), rgba(10,5,7,.99)); box-shadow: 0 30px 90px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.045); }
+.auth-card { padding: 30px; }
+.auth-close, .closeX, #closeUpgrade, #closeCredits, .viewer-close { border-radius: 50%; }
+.auth-switch { padding: 5px; border-radius: 18px; background: rgba(0,0,0,.24); }
+.auth-switch button { height: 38px; border-radius: 14px; }
+.auth-switch .active { background: rgba(255,83,123,.13); color: #fff0f2; }
+.auth-google-button { height: 48px; border-color: rgba(255,239,242,.12) !important; border-radius: 16px; background: rgba(255,255,255,.025); color: #e4d5da; }
+.auth-google-button:hover { background: rgba(255,83,123,.07); }
+#authForm input { height: 48px; border-radius: 15px; border-color: rgba(255,239,242,.12); background: rgba(0,0,0,.18); }
+#authForm input:focus { border-color: rgba(255,106,136,.72); box-shadow: 0 0 0 4px rgba(255,74,115,.10); }
+.auth-submit { height: 50px; border-radius: 16px; background: var(--acc); color: #19070c; }
+.auth-submit:hover { background: #ff7595; }
