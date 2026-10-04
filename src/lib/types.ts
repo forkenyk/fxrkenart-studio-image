@@ -1,0 +1,91 @@
+export type ModelName = 'Soul' | 'Nano Banana PRO';
+export type Quality = 'Low' | 'Medium' | 'High';
+export type Resolution = '2K' | '4K';
+export type AspectRatio = 'Auto' | '1:1' | '4:5' | '3:4' | '2:3' | '16:9' | '9:16' | '21:9';
+export type CreditEntryType = 'Granted' | 'Spent' | 'Refunded' | 'Adjusted';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  credits: number;
+}
+
+export interface ReferenceAsset {
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  mimeType: string;
+  uploadState?: 'uploading' | 'uploaded' | 'failed';
+  uploadError?: string;
+}
+
+export interface GenerationResult {
+  id: string;
+  url: string;
+  model: ModelName;
+  prompt?: string;
+  references?: boolean;
+  createdAt?: string;
+}
+
+export interface PendingResult {
+  id: string;
+  pending: true;
+  model: ModelName;
+  jobId: string;
+}
+
+export interface FailedResult {
+  id: string;
+  error: string;
+}
+
+export type GalleryResult = GenerationResult | PendingResult | FailedResult;
+
+export interface JobResponse {
+  id: string;
+  status: 'queued' | 'submitting' | 'processing' | 'completed' | 'failed' | 'canceled' | 'nsfw';
+  model: ModelName;
+  cost: number;
+  balance: number;
+  images?: GenerationResult[];
+  error?: string;
+}
+
+export interface HistoryEntry {
+  type: CreditEntryType;
+  amount: number;
+  model?: string;
+  note?: string;
+  created_at: string;
+}
+
+export interface AccountResponse {
+  user: User;
+  credits: number;
+  history: HistoryEntry[];
+}
+
+export const MODEL_META: Record<ModelName, { provider: string; mark: string; description: string }> = {
+  'Nano Banana PRO': {
+    provider: 'Google',
+    mark: 'G',
+    description: 'High-detail generation and image editing',
+  },
+  Soul: {
+    provider: 'Higgsfield',
+    mark: '✦',
+    description: 'Cinematic lifestyle and character images',
+  },
+};
+
+export const PRICE_TABLE: Record<ModelName, Record<Quality, number>> = {
+  'Nano Banana PRO': { Low: 45, Medium: 60, High: 80 },
+  Soul: { Low: 30, Medium: 42, High: 60 },
+};
+
+export function generationCost(model: ModelName, quality: Quality, resolution: Resolution, count: number): number {
+  return Math.round((PRICE_TABLE[model][quality] * (resolution === '4K' ? 1 : .55) * count));
+}
