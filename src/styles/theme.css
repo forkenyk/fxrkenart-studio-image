@@ -2768,3 +2768,134 @@ body .nexus-home, body .app-shell { position: relative; z-index: 1; background: 
   .fx-workspace .loader-matrix i,
   .fx-workspace .loader-pulse i { animation: none; }
 }
+
+/* Readability pass: match the reference video's relaxed 1280x720 density. */
+.fx-workspace .workspace-topbar {
+  flex-basis: 62px;
+  height: 62px;
+  padding-inline: 16px;
+  gap: 20px;
+}
+
+.fx-workspace .workspace-identity { min-width: 226px; gap: 10px; }
+.fx-workspace .workspace-identity strong { font-size: 12px; }
+.fx-workspace .workspace-identity small { font-size: 10.5px; }
+.fx-workspace .workspace-avatar { width: 32px; height: 32px; border-radius: 10px; }
+.fx-workspace .workspace-switch { width: 27px; height: 27px; font-size: 14px; }
+.fx-workspace .topbar-context { gap: 10px; font-size: 11.5px; }
+.fx-workspace .context-pill,
+.fx-workspace .version-pill,
+.fx-workspace .topbar-link { height: 31px; padding-inline: 11px; font-size: 10.5px; }
+.fx-workspace .header-actions { gap: 8px; }
+.fx-workspace .topbar-icon { width: 31px; height: 31px; font-size: 14px; }
+.fx-workspace .credit-wallet { height: 34px; padding-left: 10px; gap: 8px; }
+.fx-workspace .credit-wallet strong { font-size: 11.5px; }
+.fx-workspace .upgrade-button { height: 27px; padding-inline: 11px; font-size: 10.5px; }
+.fx-workspace .studio-login-button { height: 34px; padding-inline: 14px; font-size: 11.5px; }
+
+.fx-workspace .studio-body { grid-template-columns: 58px 318px minmax(0, 1fr); }
+.fx-workspace .studio-rail { gap: 17px; padding: 14px 8px; }
+.fx-workspace .rail-logo { width: 32px; height: 32px; border-radius: 10px; }
+.fx-workspace .rail-button { width: 42px; min-height: 45px; font-size: 17px; }
+.fx-workspace .rail-button small { font-size: 8.5px; }
+
+.fx-workspace .studio-create-panel { gap: 13px; padding: 16px 15px 13px; }
+.fx-workspace .create-panel-title { gap: 9px; min-height: 38px; }
+.fx-workspace .create-panel-title strong { font-size: 14px; }
+.fx-workspace .create-panel-title small { font-size: 10px; }
+.fx-workspace .create-panel-avatar { width: 30px; height: 30px; border-radius: 9px; }
+.fx-workspace .panel-more { width: 30px; height: 30px; font-size: 13px; }
+.fx-workspace .media-tabs { gap: 4px; padding: 4px; border-radius: 11px; }
+.fx-workspace .media-tabs button { height: 29px; font-size: 10px; }
+.fx-workspace .panel-field-label { margin: 2px 2px -4px; font-size: 10px; }
+
+.fx-workspace .model-row,
+.fx-workspace .output-row { min-height: 55px; padding: 9px 11px; border-radius: 13px; }
+.fx-workspace .model-provider,
+.fx-workspace .output-icon { width: 33px; height: 33px; border-radius: 10px; font-size: 9.5px; }
+.fx-workspace .model-copy strong,
+.fx-workspace .output-row strong { font-size: 12px; }
+.fx-workspace .model-copy small,
+.fx-workspace .output-row small { font-size: 10px; }
+.fx-workspace .row-chevron { font-size: 17px; }
+.fx-workspace .model-popover { top: 145px; right: 11px; left: 11px; padding: 13px; gap: 10px; }
+.fx-workspace .model-popover-head strong { font-size: 14px; }
+.fx-workspace .model-popover-head small,
+.fx-workspace .model-list-heading small { font-size: 10px; }
+.fx-workspace .model-featured { gap: 7px; padding: 7px; }
+.fx-workspace .model-featured-art { height: 54px; }
+.fx-workspace .model-featured strong { font-size: 10px; }
+.fx-workspace .model-featured small { font-size: 9px; }
+.fx-workspace .model-search { height: 34px; font-size: 10.5px; }
+.fx-workspace .model-list-heading { font-size: 10px; }
+.fx-workspace .model-popover > button { padding: 9px; }
+.fx-workspace .model-popover > button b { width: 28px; height: 28px; }
+.fx-workspace .model-popover > button strong { font-size: 11px; }
+.fx-workspace .model-popover > button small { font-size: 9px; }
+
+.fx-workspace .prompt-card { gap: 10px; padding: 14px; border-radius: 15px; }
+.fx-workspace .prompt-heading strong { font-size: 12px; }
+.fx-workspace .prompt-reference-button { width: 29px; height: 29px; font-size: 14px; }
+.fx-workspace #promptInput { min-height: 105px; font-size: 12px; line-height: 1.5; }
+.fx-workspace .visual-reference-drop { min-height: 58px; padding: 9px; gap: 9px; }
+.fx-workspace .visual-reference-drop strong { font-size: 11px; }
+.fx-workspace .visual-reference-drop small,
+.fx-workspace .visual-reference-drop em { font-size: 9px; }
+.fx-workspace .visual-reference-drop > b { font-size: 10px; }
+.fx-workspace .reference-stack { width: 38px; height: 31px; }
+.fx-workspace .reference-stack span { width: 22px; height: 29px; }
+.fx-workspace .ref-thumb { width: 48px; height: 48px; }
+.fx-workspace .prompt-chip { padding: 4px 9px; font-size: 10px; }
+.fx-workspace .prompt-tools button { width: 29px; height: 29px; font-size: 14px; }
+.fx-workspace .polish-toggle { font-size: 10px; }
+.fx-workspace .polish-toggle i { width: 30px; height: 17px; }
+.fx-workspace .polish-toggle i::after { width: 13px; height: 13px; }
+.fx-workspace .polish-toggle input:checked+i::after { transform: translateX(13px); }
+
+.fx-workspace .output-popover { bottom: 64px; padding: 14px; gap: 13px; }
+.fx-workspace .output-popover-head strong { font-size: 13px; }
+.fx-workspace .output-popover-head small { font-size: 9px; }
+.fx-workspace .output-section { gap: 8px; }
+.fx-workspace .output-label { font-size: 10px; }
+.fx-workspace .ratio-grid { gap: 5px; }
+.fx-workspace .output-chip { height: 29px; font-size: 10px; }
+.fx-workspace .quality-grid { gap: 5px; }
+.fx-workspace .quality-option { min-height: 46px; padding: 8px 6px; }
+.fx-workspace .quality-option strong { font-size: 10px; }
+.fx-workspace .quality-option small { font-size: 8px; }
+
+.fx-workspace .tool-footer { gap: 8px; padding-top: 12px; }
+.fx-workspace .quantity-control { min-width: 80px; }
+.fx-workspace .quantity-control button { width: 26px; height: 45px; font-size: 16px; }
+.fx-workspace .quantity-control strong { min-width: 28px; font-size: 11px; }
+.fx-workspace .generate-button { height: 45px; border-radius: 12px; }
+.fx-workspace .generate-button small { font-size: 10px; }
+
+.fx-workspace .canvas-toolbar { height: 58px; padding-inline: 19px; }
+.fx-workspace .canvas-tabs { gap: 3px; }
+.fx-workspace .canvas-tabs button { height: 32px; padding-inline: 10px; font-size: 11px; }
+.fx-workspace .canvas-zoom { font-size: 11px; }
+.fx-workspace .canvas-zoom b { font-size: 13px; }
+.fx-workspace .retention-banner { margin: 12px 19px 0; min-height: 38px; padding: 8px 11px; font-size: 10px; }
+.fx-workspace .retention-banner button { height: 26px; padding-inline: 11px; font-size: 10px; }
+.fx-workspace .empty-canvas { padding: 24px; }
+.fx-workspace .empty-state-icon { width: 40px; height: 40px; font-size: 19px; }
+.fx-workspace .empty-state h1 { font-size: 17px; }
+.fx-workspace .empty-state p { font-size: 11px; }
+.fx-workspace .result-board { padding: 19px; }
+.fx-workspace .result-board-head strong { font-size: 13px; }
+.fx-workspace .result-board-head span { font-size: 11px; }
+.fx-workspace .result-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 11px; }
+.fx-workspace .generation-status { right: 24px; bottom: 22px; padding: 9px 12px; font-size: 11px; }
+
+@media (max-width: 980px) {
+  .fx-workspace .workspace-identity { min-width: 184px; }
+  .fx-workspace .studio-body { grid-template-columns: 54px 300px minmax(0, 1fr); }
+}
+
+@media (max-width: 760px) {
+  .fx-workspace .workspace-topbar { height: 60px; flex-basis: 60px; padding-inline: 12px; }
+  .fx-workspace .workspace-identity { min-width: 0; }
+  .fx-workspace .workspace-identity strong { font-size: 11px; }
+  .fx-workspace .studio-create-panel { padding: 15px 14px 13px; }
+}
