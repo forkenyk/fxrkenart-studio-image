@@ -28,61 +28,86 @@ export function HomeScreen({ onLogin, onSignup, onEmailContinue, onGoogle }: Hom
   }
 
   return (
-    <div className="home-screen home-auth-screen">
-      <div className="home-grid-plane" aria-hidden="true" />
-      <div className="home-vignette" aria-hidden="true" />
-      <div className="home-light-orb" aria-hidden="true" />
-
+    <div className="home-screen secure-home">
+      <div className="secure-noise" aria-hidden="true" />
       <header className="home-header">
         <a className="home-brand" href="/" aria-label="FXRKENART home">
           <span className="brand-mark">F</span>
           <span>FXRKENART</span>
         </a>
+        <nav className="secure-nav" aria-label="Main navigation">
+          <a href="#studio">STUDIO</a>
+          <a href="#models">MODELS</a>
+          <a href="#pricing">PRICING</a>
+        </nav>
         <div className="home-auth-actions">
-          <button className="home-login glow-control" onClick={onLogin}>Log in</button>
-          <button className="home-signup glow-control" onClick={onSignup}>Sign up</button>
+          <button className="home-login glow-control" onClick={onLogin}>LOG IN</button>
+          <button className="home-signup glow-control" onClick={onSignup}>SIGN UP <span>↗</span></button>
         </div>
       </header>
 
-      <main className="home-auth-main" id="home">
-        <div className="home-auth-kicker"><span /> IMAGE STUDIO <span /></div>
-        <div className="home-auth-logo" aria-hidden="true">F</div>
-        <h1>FXRKENART</h1>
-        <p className="home-auth-lede">Turn an idea into an image worth keeping.</p>
+      <main className="secure-home-main" id="studio">
+        <section className="secure-hero">
+          <div className="secure-hero-copy">
+            <div className="secure-kicker"><span>01</span><i />GENERATIVE IMAGE STUDIO</div>
+            <h1>MAKE EVERY<br /><em>FRAME</em><br />COUNT.</h1>
+            <p>Private image generation for ideas, references and work that needs to hold up.</p>
 
-        <section className="home-auth-panel" aria-label="Create or sign in to your account">
-          <form className="home-email-form" onSubmit={submit}>
-            <label htmlFor="home-email">Start with your email</label>
-            <div className="home-email-row">
-              <input
-                id="home-email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@email.com"
-                autoComplete="email"
-                required
-              />
-              <button className="home-email-submit glow-control" type="submit">Continue <span>↗</span></button>
+            <section className="home-auth-panel" aria-label="Create or sign in to your account">
+              <form className="home-email-form" onSubmit={submit}>
+                <label htmlFor="home-email">ENTER YOUR EMAIL</label>
+                <div className="home-email-row">
+                  <input
+                    id="home-email"
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="you@email.com"
+                    autoComplete="email"
+                    required
+                  />
+                  <button className="home-email-submit glow-control" type="submit">CONTINUE <span>↗</span></button>
+                </div>
+              </form>
+              <div className="home-auth-divider"><span /> <small>OR</small> <span /></div>
+              <button className="home-google-button glow-control" type="button" onClick={onGoogle}>
+                <GoogleMark />
+                <span>CONTINUE WITH GOOGLE</span>
+              </button>
+              <small className="home-auth-note">By continuing, you agree to the studio terms and privacy policy.</small>
+            </section>
+            <div className="home-auth-switch">ALREADY HAVE AN ACCOUNT? <button className="home-inline-link glow-control" onClick={onLogin}>LOG IN</button></div>
+          </div>
+
+          <div className="secure-hero-visual" aria-label="FXRKENART image system preview">
+            <span className="secure-crop secure-crop-tl" /><span className="secure-crop secure-crop-tr" />
+            <span className="secure-crop secure-crop-bl" /><span className="secure-crop secure-crop-br" />
+            <div className="secure-art-frame">
+              <div className="secure-art-hatch" />
+              <div className="secure-art-grid" />
+              <div className="secure-art-block secure-art-shadow" />
+              <div className="secure-art-block secure-art-cyan" />
+              <div className="secure-art-block secure-art-stone"><span>F</span></div>
+              <div className="secure-art-ring" />
+              <div className="secure-art-readout"><span>REFERENCE / 01</span><b>READY</b></div>
+              <div className="secure-art-axis secure-art-axis-x" /><div className="secure-art-axis secure-art-axis-y" />
             </div>
-          </form>
-          <div className="home-auth-divider"><span /> <small>OR</small> <span /></div>
-          <button className="home-google-button glow-control" type="button" onClick={onGoogle}>
-            <GoogleMark />
-            <span>Continue with Google</span>
-          </button>
-          <small className="home-auth-note">By continuing, you agree to the studio terms and privacy policy.</small>
+            <div className="secure-visual-meta"><span>IMAGE SYSTEM</span><b>PRIVATE / 01</b></div>
+          </div>
         </section>
 
-        <div className="home-auth-switch">
-          Already have an account? <button className="home-inline-link glow-control" onClick={onLogin}>Log in</button>
-        </div>
+        <section className="secure-proof-strip" id="models">
+          <span><b>02</b> MODELS</span>
+          <strong>SOUL <i>·</i> NANO BANANA PRO</strong>
+          <span><b>∞</b> PRIVATE LIBRARY</span>
+          <span><b>4K</b> OUTPUT READY</span>
+        </section>
       </main>
 
-      <footer className="home-auth-footer">
-        <span>FXR / 2026</span>
-        <span>PRIVATE IMAGE WORKSPACE</span>
-        <span>SOUL · NANO BANANA PRO</span>
+      <footer className="secure-footer" id="pricing">
+        <span>FXRKENART / IMAGE STUDIO</span>
+        <span>BUILT FOR VISUAL WORK</span>
+        <span>2026</span>
       </footer>
     </div>
   );
