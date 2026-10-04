@@ -2466,3 +2466,52 @@ body .secure-home.nexus-home { background: transparent !important; }
 #authForm input:focus { border-color: rgba(255,106,136,.72); box-shadow: 0 0 0 4px rgba(255,74,115,.10); }
 .auth-submit { height: 50px; border-radius: 16px; background: var(--acc); color: #19070c; }
 .auth-submit:hover { background: #ff7595; }
+
+/* Interactive liquid background. It sits behind every product surface and reacts
+   to pointer movement and clicks without intercepting UI input. */
+#root { position: relative; z-index: 0; min-height: 100%; isolation: isolate; }
+.water-shader { position: fixed; inset: 0; z-index: 0; display: block; width: 100vw; height: 100vh; pointer-events: none; opacity: .98; }
+body .nexus-home, body .app-shell { position: relative; z-index: 1; background: transparent !important; }
+.nexus-home .nexus-background { opacity: .42; mix-blend-mode: screen; }
+
+.nexus-home .nexus-workspace-preview,
+.nexus-home .nexus-auth-panel,
+.nexus-home .nexus-proof > div,
+.app-shell .tool-panel,
+.app-shell .creation-area,
+.app-shell .model-row,
+.app-shell .output-row,
+.app-shell .prompt-card,
+.app-shell .result-tile {
+  transition: border-color .35s ease, box-shadow .35s ease, transform .35s cubic-bezier(.2,.8,.2,1), background .35s ease;
+}
+
+.nexus-home .nexus-workspace-preview:hover,
+.nexus-home .nexus-auth-panel:hover,
+.nexus-home .nexus-proof > div:hover,
+.app-shell .tool-panel:hover,
+.app-shell .creation-area:hover,
+.app-shell .model-row:hover,
+.app-shell .output-row:hover,
+.app-shell .prompt-card:focus-within {
+  border-color: rgba(255, 134, 157, .28);
+  box-shadow: 0 22px 70px rgba(0,0,0,.26), 0 0 38px rgba(255,55,103,.055), inset 0 1px 0 rgba(255,255,255,.045);
+}
+
+.nexus-home button:hover,
+.nexus-home a:hover,
+.app-shell button:hover:not(:disabled),
+.app-shell a:hover {
+  transition: transform .22s cubic-bezier(.2,.8,.2,1), color .22s ease, background .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.nexus-home button:active,
+.nexus-home a:active,
+.app-shell button:active:not(:disabled),
+.app-shell a:active {
+  transform: scale(.975);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .water-shader { display: none; }
+}
