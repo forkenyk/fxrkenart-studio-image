@@ -10,7 +10,7 @@ import { uploadRoutes } from './routes/upload';
 export const app = new Hono();
 
 app.use('/api/*', cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], credentials: true }));
-app.get('/api/health', (c) => c.json({ ok: true, provider: 'Higgsfield', models: ['Soul', 'Nano Banana PRO'] }));
+app.get('/api/health', (c) => c.json({ ok: true, provider: 'FXRKENART providers', models: ['Nano Banana PRO', 'ChatGPT 2.5'] }));
 app.route('/api/auth', authRoutes);
 app.route('/api/credits', creditRoutes);
 app.route('/api/generate', generationRoutes);

@@ -5,7 +5,7 @@ import { generationCost, type ModelName, type Quality } from '../config';
 import { many, one, run, transaction } from '../db';
 import { executeGeneration } from '../jobs/generation-job';
 
-const models: ModelName[] = ['Soul', 'Nano Banana PRO'];
+const models: ModelName[] = ['Nano Banana PRO', 'ChatGPT 2.5'];
 const qualities: Quality[] = ['Low', 'Medium', 'High'];
 
 export const generationRoutes = new Hono();
@@ -19,7 +19,7 @@ generationRoutes.post('/', async (c) => {
   const resolution = input.resolution === '4K' ? '4K' : '2K';
   const count = Math.min(4, Math.max(1, Number(input.count || 1)));
   const referenceIds = Array.isArray(input.reference_ids) ? input.reference_ids.filter((value: unknown): value is string => typeof value === 'string').slice(0, 16) : [];
-  if (!models.includes(model)) return c.json({ error: 'Model must be Soul or Nano Banana PRO.' }, 400);
+  if (!models.includes(model)) return c.json({ error: 'Model must be Nano Banana PRO or ChatGPT 2.5.' }, 400);
   if (!qualities.includes(quality)) return c.json({ error: 'Quality is invalid.' }, 400);
   if (typeof input.prompt !== 'string' || !input.prompt.trim() || input.prompt.length > 10000) return c.json({ error: 'Prompt is required and must be under 10,000 characters.' }, 400);
   if (referenceIds.length) {
@@ -39,7 +39,7 @@ generationRoutes.post('/', async (c) => {
   transaction(() => {
     const balance = user.credits - cost;
     run('UPDATE users SET credits = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', balance, user.id);
-    run('INSERT INTO generations (id, user_id, provider, model, prompt, settings_json, cost_credits, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', id, user.id, model === 'Soul' ? 'higgsfield' : 'google', model, input.prompt.trim(), JSON.stringify({ quality, resolution, count, aspect_ratio: input.aspect_ratio || 'Auto', auto_polish: Boolean(input.auto_polish), reference_ids: referenceIds }), cost, 'queued');
+    run('INSERT INTO generations (id, user_id, provider, model, prompt, settings_json, cost_credits, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', id, user.id, model === 'Nano Banana PRO' ? 'google' : 'openai', model, input.prompt.trim(), JSON.stringify({ quality, resolution, count, aspect_ratio: input.aspect_ratio || 'Auto', auto_polish: Boolean(input.auto_polish), reference_ids: referenceIds }), cost, 'queued');
     run('INSERT INTO credit_ledger (id, user_id, generation_id, type, amount, balance_after, note) VALUES (?, ?, ?, ?, ?, ?, ?)', crypto.randomUUID(), user.id, id, 'spent', cost, balance, `${model} generation`);
     if (clientRequestId) run('INSERT INTO idempotency_keys (user_id, key, generation_id, expires_at) VALUES (?, ?, ?, ?)', user.id, clientRequestId, id, expiresAt);
   });

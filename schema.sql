@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS generations (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   provider TEXT NOT NULL,
-  model TEXT NOT NULL CHECK (model IN ('Soul', 'Nano Banana PRO')),
+  model TEXT NOT NULL CHECK (model IN ('Nano Banana PRO', 'ChatGPT 2.5')),
   prompt TEXT NOT NULL,
   settings_json TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'queued' CHECK (status IN ('queued', 'submitting', 'processing', 'completed', 'failed', 'canceled', 'nsfw')),

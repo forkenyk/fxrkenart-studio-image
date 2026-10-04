@@ -15,14 +15,35 @@ npm run dev
 
 Open `http://localhost:5173`. The API runs on `http://localhost:4175` and Vite proxies `/api` to it.
 
+This is a child site of the main FXRKENART site. Its production route is:
+
+```text
+https://fxrkenart.com/studio-image/
+```
+
+Build the child site with its parent prefix:
+
+```bash
+VITE_BASE_PATH=/studio-image/ npm run build
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:VITE_BASE_PATH='/studio-image/'; npm run build
+```
+
+The frontend derives its API and media URLs from that base path, so it does not call the parent root `/api` by accident. The parent Worker should route `/studio-image/*` to this child site's static build and `/studio-image/api/*` to the Hono API.
+
 Fill in the server-side provider values in `.env` before generating:
 
 ```env
 HF_CREDENTIALS=KEY_ID:KEY_SECRET
 HF_NANO_BANANA_PATH=/your/provider/nano/banana/pro/route
+HF_CHATGPT_25_PATH=/your/provider/chatgpt/2.5/route
 ```
 
-`Soul` uses the standard route without references and the Soul image-to-image route when a reference is selected. `Nano Banana PRO` is intentionally configured through its provider route instead of being faked or silently replaced by another model.
+The temporary Studio model list is `Nano Banana PRO` and `ChatGPT 2.5`. Each model is routed through its own server-side provider path; the UI never exposes provider secrets.
 
 ## What is real in this build
 

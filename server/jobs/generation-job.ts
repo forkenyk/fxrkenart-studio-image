@@ -6,7 +6,7 @@ import { readMedia, saveDownloadedImage, newAssetId } from '../storage/local';
 
 interface GenerationInput {
   prompt: string;
-  model: 'Soul' | 'Nano Banana PRO';
+  model: 'Nano Banana PRO' | 'ChatGPT 2.5';
   quality: 'Low' | 'Medium' | 'High';
   resolution: '2K' | '4K';
   count: number;

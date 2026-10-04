@@ -91,7 +91,7 @@ export function HomeScreen({ onLogin, onSignup, onEmailContinue, onGoogle }: Hom
               <div className="nexus-preview-nav active"><span>＋</span> New image</div>
               <div className="nexus-preview-nav"><span>◌</span> Image library</div>
               <div className="nexus-preview-nav"><span>⌁</span> References</div>
-              <div className="nexus-preview-sidebar-footer"><span>Models</span><strong>Soul · Nano Banana PRO</strong></div>
+              <div className="nexus-preview-sidebar-footer"><span>Models</span><strong>Nano Banana PRO · ChatGPT 2.5</strong></div>
             </aside>
             <div className="nexus-preview-canvas">
               <div className="nexus-canvas-heading"><span>CREATE / 01</span><b>2K · 4:5</b></div>
@@ -104,7 +104,7 @@ export function HomeScreen({ onLogin, onSignup, onEmailContinue, onGoogle }: Hom
             </div>
             <aside className="nexus-preview-controls">
               <div className="preview-control-title">Generation settings</div>
-              <div className="preview-control-row"><span>Model</span><strong>Nano Banana PRO</strong></div>
+              <div className="preview-control-row"><span>Models</span><strong>Nano Banana PRO · ChatGPT 2.5</strong></div>
               <div className="preview-control-row"><span>Quality</span><strong>High</strong></div>
               <div className="preview-control-row"><span>References</span><strong>03 images</strong></div>
               <div className="preview-credit"><span>Credits remaining</span><strong>2,480</strong></div>
@@ -113,7 +113,7 @@ export function HomeScreen({ onLogin, onSignup, onEmailContinue, onGoogle }: Hom
         </section>
 
         <section className="nexus-proof" id="models">
-          <div><span>Built for images that need to hold up.</span><strong>SOUL <i>·</i> NANO BANANA PRO</strong></div>
+          <div><span>Built for images that need to hold up.</span><strong>NANO BANANA PRO <i>·</i> CHATGPT 2.5</strong></div>
           <div><span>Private by default</span><strong>YOUR LIBRARY, YOUR WORK</strong></div>
           <div><span>Output when it matters</span><strong>UP TO 4K READY</strong></div>
         </section>

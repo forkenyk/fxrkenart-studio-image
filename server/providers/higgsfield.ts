@@ -19,16 +19,6 @@ function imageUrls(payload: any) {
   return [...new Set(candidates.flatMap(unwrapUrls))];
 }
 
-function soulAspect(value: string) {
-  if (value === '4:5') return '3:4';
-  if (value === 'Auto') return '4:3';
-  return ['9:16', '16:9', '4:3', '3:4', '1:1', '2:3', '3:2'].includes(value) ? value : '4:3';
-}
-
-function soulResolution(value: string) {
-  return value === 'Low' || value === '2K' ? '720p' : '1080p';
-}
-
 export async function uploadReference(bytes: Uint8Array, contentType: string) {
   if (!config.hfCredentials) throw new Error('HF_CREDENTIALS is not configured on the server.');
   const signedResponse = await fetch(`${config.hfBase}/files/generate-upload-url`, { method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ content_type: contentType }) });
@@ -44,15 +34,13 @@ export async function generate(input: { model: ModelName; prompt: string; qualit
   const count = Math.min(4, Math.max(1, input.count));
   let endpointPath: string;
   let body: Record<string, unknown>;
-  if (input.model === 'Soul') {
-    const hasReference = input.referenceUrls.length > 0;
-    endpointPath = hasReference ? config.soulImagePath : config.soulTextPath;
-    body = hasReference
-      ? { image_url: input.referenceUrls[0], prompt: input.prompt, batch_size: count, resolution: soulResolution(input.resolution), aspect_ratio: soulAspect(input.aspectRatio), enhance_prompt: true }
-      : { prompt: input.prompt, batch_size: count, resolution: soulResolution(input.resolution), aspect_ratio: soulAspect(input.aspectRatio), enhance_prompt: input.autoPolish, style_strength: 1 };
-  } else {
+  if (input.model === 'Nano Banana PRO') {
     if (!config.nanoPath) throw new Error('Set HF_NANO_BANANA_PATH before using Nano Banana PRO.');
     endpointPath = config.nanoPath;
+    body = { prompt: input.prompt, image_urls: input.referenceUrls.length ? input.referenceUrls : undefined, quality: input.quality.toLowerCase(), resolution: input.resolution.toLowerCase(), aspect_ratio: input.aspectRatio.toLowerCase(), enhance_prompt: input.autoPolish, batch_size: count };
+  } else {
+    if (!config.chatgpt25Path) throw new Error('Set HF_CHATGPT_25_PATH before using ChatGPT 2.5.');
+    endpointPath = config.chatgpt25Path;
     body = { prompt: input.prompt, image_urls: input.referenceUrls.length ? input.referenceUrls : undefined, quality: input.quality.toLowerCase(), resolution: input.resolution.toLowerCase(), aspect_ratio: input.aspectRatio.toLowerCase(), enhance_prompt: input.autoPolish, batch_size: count };
   }
   const response = await fetch(`${config.hfBase}${endpointPath}`, { method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });

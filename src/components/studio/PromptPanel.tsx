@@ -33,6 +33,7 @@ export function PromptPanel({ prompt, references, chips, autoPolish, onPrompt, o
   return (
     <section className="prompt-card">
       <div className="prompt-heading"><strong>Describe your image</strong><button className="prompt-reference-button glow-control" onClick={() => setTagOpen(true)} aria-label="Tag reference">@</button></div>
+      <textarea id="promptInput" value={prompt} onChange={(event) => handlePrompt(event.target.value)} onKeyDown={(event) => { if (event.key === '@') setTagOpen(true); }} placeholder="Describe your image" spellCheck={false} />
       <button className="visual-reference-drop glow-control" onClick={() => inputRef.current?.click()} onDragOver={(event) => { event.preventDefault(); event.currentTarget.classList.add('dragging'); }} onDragLeave={(event) => event.currentTarget.classList.remove('dragging')} onDrop={(event) => { event.preventDefault(); event.currentTarget.classList.remove('dragging'); handleFiles(event.dataTransfer.files); }}>
         <div className="reference-stack"><span /><span /><span /></div>
         <div><strong>Add visual references</strong><small>Optional</small><em>JPEG/PNG/WEBP, 20 MB max</em></div>
@@ -45,7 +46,6 @@ export function PromptPanel({ prompt, references, chips, autoPolish, onPrompt, o
         </figure>)}
       </div>
       {chips.length > 0 && <div className="prompt-chip-row">{chips.map((chip) => <span className="prompt-chip" key={chip}>@{chip}</span>)}</div>}
-      <textarea value={prompt} onChange={(event) => handlePrompt(event.target.value)} onKeyDown={(event) => { if (event.key === '@') setTagOpen(true); }} placeholder="Describe your image" spellCheck={false} />
       <div className="prompt-footer">
         <div className="prompt-tools"><button className="glow-control" onClick={() => inputRef.current?.click()} aria-label="Add image">⌁</button><button className="glow-control" onClick={() => onPrompt('')} aria-label="Clear prompt">♲</button></div>
         <label className="polish-toggle"><span>Auto Polish</span><input type="checkbox" checked={autoPolish} onChange={(event) => onAutoPolish(event.target.checked)} /><i /></label>

@@ -8,6 +8,16 @@ import { authenticate, createGeneration, getAccount, getGeneration, getLibrary, 
 import { generationCost, type AspectRatio, type GalleryResult, type GenerationResult, type HistoryEntry, type ModelName, type Quality, type ReferenceAsset, type Resolution, type User } from '../lib/types';
 
 const initialModel: ModelName = 'Nano Banana PRO';
+// Temporary product-mode flag: finish the generation workspace first.
+// Flip to false later to restore the public Home/auth landing page.
+const HIDE_HOME = true;
+
+const previewUser: User = {
+  id: 'preview-user',
+  name: 'FXRKENART creator',
+  email: 'Sign in to save your workspace',
+  credits: 0,
+};
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -116,6 +126,7 @@ export default function App() {
   }
 
   async function handleUpload(files: FileList | File[]) {
+    if (!user) { openAuth('login'); return; }
     const selected = Array.from(files).filter((file) => file.type.startsWith('image/')).slice(0, 14 - references.length);
     for (const file of selected) {
       const localId = `local-${crypto.randomUUID()}`;
@@ -171,6 +182,7 @@ export default function App() {
   }
 
   async function startGeneration() {
+    if (!user) { openAuth('login'); return; }
     if (generating) return;
     if (!prompt.trim()) { setStatus('Describe the image you want to create first.', 'error'); return; }
     if (references.some((item) => item.uploadState === 'uploading')) { setStatus('Wait for the reference upload to finish.', 'error'); return; }
@@ -208,7 +220,9 @@ export default function App() {
 
   const selectedViewerResult = useMemo(() => viewerResult && 'url' in viewerResult ? viewerResult : null, [viewerResult]);
 
-  if (!user) return <><WaterShaderBackground /><HomeScreen onLogin={() => openAuth('login')} onSignup={() => openAuth('signup')} onEmailContinue={handleEmailContinue} onGoogle={handleGoogleAuth} /><AuthModal open={authOpen} initialMode={authMode} prefillEmail={authEmail} busy={authBusy} error={authError} onClose={() => setAuthOpen(false)} onGoogle={handleGoogleAuth} onSubmit={handleAuth} /></>;
+  const studioUser = user || previewUser;
+  const studio = <><WaterShaderBackground /><StudioShell user={studioUser} guest={!user} model={model} quality={quality} resolution={resolution} ratio={ratio} count={count} prompt={prompt} autoPolish={autoPolish} references={references} chips={chips} results={results} credits={credits} history={history} status={status} statusKind={statusKind} modelOpen={modelOpen} outputOpen={outputOpen} viewerResult={selectedViewerResult} creditsOpen={creditsOpen} onLogin={() => openAuth('login')} onLogout={handleLogout} onModelOpen={() => { setModelOpen((value) => !value); setOutputOpen(false); }} onModel={(value) => { setModel(value); setModelOpen(false); }} onOutputOpen={() => { setOutputOpen((value) => !value); setModelOpen(false); }} onRatio={setRatio} onQuality={setQuality} onResolution={setResolution} onPrompt={setPrompt} onAutoPolish={setAutoPolish} onUpload={handleUpload} onRemoveReference={removeReference} onTag={tagReference} onCount={setCount} onGenerate={startGeneration} onClear={() => setResults([])} onOpenViewer={setViewerResult} onCloseViewer={() => setViewerResult(null)} onUseReference={useResultAsReference} onOpenCredits={() => setCreditsOpen(true)} onCloseCredits={() => setCreditsOpen(false)} onUpgrade={() => setUpgradeOpen(true)} /><UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} onSelect={(label) => setStatus(`${label} selected. Payment gateway will be connected before public launch.`, 'success')} />{!user && <AuthModal open={authOpen} initialMode={authMode} prefillEmail={authEmail} busy={authBusy} error={authError} onClose={() => setAuthOpen(false)} onGoogle={handleGoogleAuth} onSubmit={handleAuth} />}</>;
 
-  return <><WaterShaderBackground /><StudioShell user={user} model={model} quality={quality} resolution={resolution} ratio={ratio} count={count} prompt={prompt} autoPolish={autoPolish} references={references} chips={chips} results={results} credits={credits} history={history} status={status} statusKind={statusKind} modelOpen={modelOpen} outputOpen={outputOpen} viewerResult={selectedViewerResult} creditsOpen={creditsOpen} onLogout={handleLogout} onModelOpen={() => { setModelOpen((value) => !value); setOutputOpen(false); }} onModel={(value) => { setModel(value); setModelOpen(false); }} onOutputOpen={() => { setOutputOpen((value) => !value); setModelOpen(false); }} onRatio={setRatio} onQuality={setQuality} onResolution={setResolution} onPrompt={setPrompt} onAutoPolish={setAutoPolish} onUpload={handleUpload} onRemoveReference={removeReference} onTag={tagReference} onCount={setCount} onGenerate={startGeneration} onClear={() => setResults([])} onOpenViewer={setViewerResult} onCloseViewer={() => setViewerResult(null)} onUseReference={useResultAsReference} onOpenCredits={() => setCreditsOpen(true)} onCloseCredits={() => setCreditsOpen(false)} onUpgrade={() => setUpgradeOpen(true)} /><UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} onSelect={(label) => setStatus(`${label} selected. Payment gateway will be connected before public launch.`, 'success')} /></>;
+  if (!user && !HIDE_HOME) return <><WaterShaderBackground /><HomeScreen onLogin={() => openAuth('login')} onSignup={() => openAuth('signup')} onEmailContinue={handleEmailContinue} onGoogle={handleGoogleAuth} /><AuthModal open={authOpen} initialMode={authMode} prefillEmail={authEmail} busy={authBusy} error={authError} onClose={() => setAuthOpen(false)} onGoogle={handleGoogleAuth} onSubmit={handleAuth} /></>;
+  return studio;
 }
